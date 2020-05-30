@@ -5,7 +5,7 @@ with open("gushi.txt","r") as f:
         if '、' in line:
             words += [ word for word in line.split("、") if word.strip()]
 words = set(words)
-
+print(len(words))
 import turtle as tt
 import random
 size = 35
