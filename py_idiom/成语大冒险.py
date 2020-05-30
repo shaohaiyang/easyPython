@@ -4,7 +4,8 @@ with open("gushi.txt","r") as f:
         line = line.strip() # 去除空白符号和换行符
         if '、' in line:
             words += [ word for word in line.split("、") if word.strip()]
- 
+words = set(words)
+
 import turtle as tt
 import random
 size = 35
