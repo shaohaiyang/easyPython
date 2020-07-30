@@ -7,7 +7,7 @@ from queue import Queue
 size = w, h = 1000, 2000
 title = '---  单词勇闯关  ---'
 file = 'words.txt'
-fps = 40      buil
+fps = 40
 max = 15
 level = 2
 score = 0
