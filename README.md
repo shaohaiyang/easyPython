@@ -1,19 +1,21 @@
+<img alt="这些游戏寓教于乐,感觉不错就打赏一杯咖啡吧" src="https://github.com/shaohaiyang/easyPython/blob/master/weixin_pay.jpeg" align="left" height="580">
+
 # py_idiom
-基于Python Turtle模块的随机背成语游戏，可以设置个数及隐藏字符数量。
+基于Python Turtle模块的随机背成语游戏，可以设置个数及隐藏字符数量
 
 # py_beatwords
-基于PyGame编写的打英文单词的游戏，支持发音和在线翻译，自定义单词
+基于PyGame编写的打英文单词的游戏，支持发音和在线翻译，自定义单词,寓教于乐
 
 # py_spacewar
 基于PyGame的太空大战的游戏，除了自发子弹还支持空格放大招
 
 # py_flybird
-基于PyGame的仿里约大冒险里的穿水管小鸟，好玩而已
+基于PyGame的仿里约大冒险里的穿水管小鸟，不光好玩更减压
 
 # py_poetry
 基于Python的背古诗，随机挑选15首古诗
 
-## how to use
+# 如何使用? how to use
 ```bash
 ./run-poetrt.sh # OR python .\py_poetry\main.py
 
