@@ -1,0 +1,417 @@
+anyone:任何人
+anywhere:在任何地方
+wonderful:精彩的
+few:很少的
+quite a few:不少
+most:最
+something:某物
+nothing:没有什么
+everyone:每个人
+of course:当然
+myself:我自己
+yourself:你自己
+hen:母鸡
+pig:猪
+seem:似乎
+bored:无聊的
+someone:某人
+diary:日记
+enjoyable:愉快的
+activity:活动
+decide:决定
+try:尝试
+paragliding:滑翔伞
+feel like:感觉就像
+bird:鸟
+bicycle:自行车
+building:建筑
+trader:交易者
+wonder:想知道
+difference:差异
+top:顶部
+wait:等待
+umbrella:雨伞
+wet:潮湿的
+because of:因为
+below:在下面
+enough:足够地
+hungry:饥饿的
+as:作为
+hill:小山
+duck:鸭子
+dislike:不喜欢
+housework:家务
+hardly:几乎不
+ever:曾经
+waterfall:瀑布
+square:广场
+Malaysian:马来西亚
+Malaysia:马来西亚
+palace:宫殿
+hardly ever:几乎没有
+once:一旦
+twice:两次
+Internet:互联网
+program:程序
+full:满的
+swing:摆动
+swing dance:摇摆舞
+maybe:大概
+least:最少的
+at least:至少
+junk:废旧物品
+junk food:垃圾食品
+coffee:咖啡
+health:健康
+result:结果
+percent:百分比
+online:在线 的
+television:电视
+although:虽然
+through:通过
+mind:介意
+body:身体
+such:这样的
+such as:例如
+together:在一起
+die:死亡
+writer:作家
+dentist:牙医
+magazine:杂志
+however:然而
+than:比
+more than:比...更
+almost:几乎
+none:没有一个
+less:较少的
+less than:少于
+point:指向
+outgoing:外向的
+both:二者都
+better:更好的
+loudly:大声地
+quietly:安静地
+hard-working:勤奋的
+competition:竞争
+fantastic:好极了
+whick:惠克
+clearly:清晰地
+win:赢
+though:虽然
+talented:有 才能的
+truly:真正地
+care:照顾
+care about:关心
+langh:长的
+serious:严重的
+mirror:镜子
+kid:小孩
+as long as:只要
+necessary:必要的
+be different from:不同于
+bring out:生产
+grade:等级
+should:应该
+the same as:与…一样
+saying:说
+reach:达到
+hand:手
+touch:触摸
+heart:心
+fact:事实
+in fact:事实上
+break:打破
+arm:臂
+share:分享
+loud:大声的
+similar:类似的
+be similar to:与…相似
+primary:主要的，重要的
+primary school:小学
+information:信息
+theater:剧院
+comfortable:舒适的
+seat:座位
+screen:屏幕
+close:关闭
+ticket:票
+worst:最差的
+cheaply:便宜地
+song:歌曲
+DJ:流行音乐播音员
+choose:选择
+carefully:小心
+reporter:记者
+so far:目前为止
+fresh:新鲜的
+comfortably:舒适地
+worse:更糟的
+service:服务
+pretty:漂亮的
+menu:菜单
+act:行为
+meal:一餐
+creative:创造性的
+performer:表演者
+talent:才能
+magician:魔术师
+all kind of:各种各样的
+beautifully:美丽地
+be up to:取决于
+role:角色
+play a role:扮演角色
+winner:赢家
+prize:奖
+everybody:每个人
+make up:组成
+example:例子
+for example:例如
+poor:贫穷的
+seriously:认真地
+take seriously:认真对待
+give:给
+crowded:拥挤的
+sitcom:情景喜剧
+news:新闻
+soap:肥皂
+mind:介意
+stand:站
+educational:教育的
+plan:计划
+hope:希望
+find out:找出
+discussion:讨论
+happen:发生
+expect:期待
+joke:笑话
+comedy:喜剧片
+meaningless:无意义的
+action:行动
+action movie:动作片
+cartoon:卡通
+action movie:动作片
+cartoon:卡通
+culture:文化
+famous:著名的
+appear:出现
+become:成为
+rich:富有的
+successful:成功的
+might:可以
+main:主要的
+reason:原因
+common:常见的
+film:电影
+unlucky:不幸的
+lose:失去
+girlfriend:女朋友
+ready:准备好的
+be ready to:做好准备
+simple:简单的
+army:军队
+do a good job:做好工作
+grow up:长大
+computer programmer:计算机程序员
+cook:烹调
+doctor:医生
+engineer:工程师
+violinist:小提琴家
+driver:司机
+pilot:飞行员
+pianist:钢琴家
+scientist:科学家
+be sure about:对…有把握
+make sure:确保
+college:学院
+education:教育
+medicine:医学
+universsity:普遍的
+london:伦敦
+article:文章
+send:发送
+resolution:决议
+team:团队
+make the soccor team:组建足球队
+foreign:外国的
+able:能够的
+be able to:能够
+promise:承诺
+beginning:开始
+at the beginning of:在开始
+improve:改善
+write down:记下
+physical:身体的
+themselves:他们自己
+have to do with:与…有关
+self_improvement:自我完善
+take up:开始从事
+bobby:警察
+paint:油漆
+weekly:每周的
+schoolwork:课业
+question:问题
+meaning:意思
+discuss:讨论
+own:拥有
+personal:个人的
+relationship:关系
+paper:纸张
+pollution:污染
+prediction:预测
+future:未来
+pollute:污染
+encitonment:包扎
+planet:行星
+earth:地球
+plant:植物
+part:部分
+play a part:扮演一个角色
+peace:和平
+sea:海
+build:建造
+sky:天空
+astronaut:宇航员
+apartment:公寓
+rocket:火箭
+space:空间
+space station:空间站
+human:人类
+servant:仆人
+dangerous:危险的
+already:已经
+factory:工厂
+over and over again:一次又一次
+japan:日本
+believe:相信
+disagree:不同意
+even:即使
+agree:同意
+hundreds:几百
+shape:形状
+fall:落下
+fall down:跌倒
+inside:在…内
+look for:寻找
+possible:可能的
+impossible:不可能的
+side:一边
+probably:可能
+during:在期间
+holiday:假日
+word:单词
+shake:摇
+milk shake:奶昔
+blender:搅拌机
+turn on:打开
+peel:剥
+pour:倒
+yogurt:酸奶
+honey:蜂蜜
+watermelon:西瓜
+spoon:勺子
+pot:锅
+add:添加
+finally:最后
+salt:盐
+sugar:糖
+cheese:奶酪
+popcorn:爆米花
+corn:玉米
+machine:机器
+dig:挖掘
+hole:孔
+sandwich:三明治
+butter:黄油
+turkey:火鸡
+lettuce:生菜
+piece:块
+tanksgiving:坦克
+traditional:传统的
+autumn:秋天
+traveler:旅行者
+england:英格兰
+celebrate:庆祝
+mix:混合
+pepper:胡椒粉
+fill:填满
+oven:烤箱
+plate:盘子
+cover:盖
+gravy:肉汁
+serve:服务
+temperature:温度
+prepare:准备
+prepare for:准备
+exam:考试
+go to the doctor:去看医生
+go to a doctor:去看医生
+flu:流感
+available:可获得的
+another time:下次
+until:直到
+hang:悬挂
+hang out:闲逛
+catch:抓住
+invite:邀请
+accept:接受
+refuse:拒绝
+the day before yesterday:前天
+the day after tomorrow:后天
+weekday:周工作日
+look after:照看
+invitation:邀请
+turn down:调低
+reply:回复
+forward:向前地
+delete:删除
+print:打印
+sad:悲哀的
+goodbye:再见
+take a trip:去旅行吧
+glad:高兴的
+help out:帮助摆脱困境
+preparaton:准备工作
+glue:胶
+without:没有
+surprised:惊讶
+look forward to:期待
+hear from:收到…的信
+housewarming:乔迁之喜
+opening:开放
+concert:音乐会
+headmaster:校长
+event:事件
+guest:客人
+calendar:日历
+daytime:白天
+meeting:会议
+video:视频
+organize:组织
+potato chips:薯片
+chocolate:巧克力
+upset:沮丧的
+taxi:出租车
+advice:建议
+travel:旅行
+agent:代理人
+expert:专家
+teenager:青少年
+normal:正常的
+unless:除非
+certainly:当然
+wallet:钱包
+mile:英里
+angry:愤怒的
+understanding:理解力
+careless:粗心的
+mistake:错误
+himself:他自己
+careful:仔细的
+advise:建议
+solve:解决
+step:步
+trust:信任
+experience:经验
+in half:对半
+halfway:半路
+else:其他的
