@@ -45,8 +45,8 @@ if "Darwin" in system():
     font_file = "/System/Library/Fonts/PingFang.ttc"
     from AppKit import NSSpeechSynthesizer
     speaker = NSSpeechSynthesizer.alloc().init()
-    from_voice = "com.apple.speech.synthesis.voice.Princess"
-    speaker.setVoice_(from_voice)
+    #from_voice = "com.apple.speech.synthesis.voice.Princess"
+    #speaker.setVoice_(from_voice)
 elif "Windows" in system():
     font_file = r"C:\windows\Fonts\msyh.ttc"
     import win32com.client as wincl
