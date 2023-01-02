@@ -203,5 +203,5 @@ async def adduser(req):
 		})
 
 
-app.start(port=5556, url="0.0.0.0") # url defaults to 127.0.0.1
+app.start(port=5000, url="0.0.0.0") # url defaults to 127.0.0.1
 # python3 /robyn_demo/app.py --processes 4 --workers 4
