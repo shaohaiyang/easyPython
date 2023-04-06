@@ -20,10 +20,10 @@ RUN set -eux; \
     cargo --version; \
     rustc --version; \
     curl -o /tmp/requirements.txt https://gist.githubusercontent.com/shaohaiyang/2960abbdc947ebbc6abdd7a77fcfb161/raw/156204c6dfd286ae9659e9e4d7c652284c1455c0/docker-requirements.txt; \
-    curl -o /tmp/app.py https://gist.githubusercontent.com/shaohaiyang/2960abbdc947ebbc6abdd7a77fcfb161/raw/0ab0d0aad135055bbcdbad5d84e960bffee24dca/robyn-app.py; \
+    curl -o /tmp/main.py https://gist.githubusercontent.com/shaohaiyang/2960abbdc947ebbc6abdd7a77fcfb161/raw/0ab0d0aad135055bbcdbad5d84e960bffee24dca/robyn-app.py; \
     pip install -r /tmp/requirements.txt; \
     apt-get clean && rm -rf /var/lib/apt/lists/*;
 
 ENTRYPOINT ["python3"]
-CMD ["/tmp/app.py"]
-# docker run -tid -v /app:/app -p 5000:5000 robyn-rust-py3 sh -c "prisma db push --schema /app/sqldb/schema.prisma && python3 /app/app.py"
+CMD ["/tmp/main.py"]
+# docker run -tid -v /app:/app -p 5000:5000 robyn-rust-py3 sh -c "prisma db push --schema /app/sqldb/schema.prisma && python3 /app/main.py"

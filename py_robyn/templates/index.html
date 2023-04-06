@@ -5,11 +5,10 @@
 <head>
     <meta charset="utf-8">
     <title>Robyn HTMX Demo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.5.0"></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
     <style>
         body{
             padding: 20px;
@@ -39,9 +38,10 @@
 
 <!-- Place <body> </body> code here -->
 <body>
-	<h1>{{framework}} 🤝 {{templating_engine}} 🤝  HTMX</h1>
+    <h1>{{framework}} 🤝 {{templating_engine}} 🤝  HTMX</h1>
+
     <div x-data="{show: false}">
-        <button @click="show=!show" class="btn btn-info">New Post</button>
+        <button @click="show=!show" class="btn btn-primary">New Post</button>
         <hr>
         <div x-show="show">
         <form hx-post="/submit" hx-swap="beforeend" hx-target="#new-book" class="mb-3">
@@ -79,6 +79,7 @@
             {%endfor%}
         </tbody>
     </table>
+
 </body>
 
 </html>

@@ -1,5 +1,5 @@
 from robyn import Robyn, serve_file, serve_html, jsonify, WS
-from robyn.robyn import Response
+from robyn.robyn import Response, Request
 from robyn.templating import JinjaTemplate
 from urllib.parse import parse_qs
 from prisma import Prisma
@@ -36,8 +36,8 @@ async def h(req):
 
 
 @app.post("/submit")
-async def addpost(req):
-	data = parse_qs(bytearray(req.get("body")).decode("utf-8"))
+async def addpost(req: Request):
+	data = parse_qs(req.body) # (bytearray(req.get("body")).decode("utf-8")) unused
 
 	title = data.get("title")[0]
 	author = data.get("author")[0]
@@ -79,7 +79,7 @@ async def addpost(req):
 @app.get("/view/:id")
 async def getpost(req):
 	try:
-		postId = int(req.get("params").get("id"))
+		postId = int(req.params.get("id")) #(req.get("params").get("id")) unused
 		if DEBUG: print(postId, "view")
 
 		post = db.post.find_unique(where={'id': postId}, include={'author': True})
@@ -105,7 +105,7 @@ async def getpost(req):
 
 @app.put("/edit/:id")
 async def edit(req):
-	postId = int(req.get("params").get("id"))
+	postId = int(req.params.get("id"))
 	if DEBUG: print(postId," edit")
 
 	post = db.post.find_unique(where={'id': postId}, include={'author': True})
@@ -128,12 +128,10 @@ async def edit(req):
 @app.put("/update/:id")
 async def update(req):
 	try:
-		postId = int(req.get("params").get("id"))
+		postId = int(req.params.get("id"))
 		if DEBUG: print(postId," update")
 
-		print(req)
-		data = parse_qs(bytearray(req.get("body")).decode("utf-8"))
-		print(data)
+		data = parse_qs(req.body)
 		title = data.get("title")[0]
 
 		post = db.post.find_unique(where={'id': postId}, include={'author': True})
@@ -157,8 +155,8 @@ async def update(req):
 		raise(e)
 
 @app.put("/delete/:id")
-async def delete(req):
-	postId = int(req.get("params").get("id"))
+async def delete(req: Request):
+	postId = int(req.params.get("id"))
 	if DEBUG: print(postId," delete")
 
 	post = db.post.delete(where={'id': postId})
@@ -182,7 +180,7 @@ async def getuser(req):
 @app.post("/user")
 async def adduser(req):
 	try:
-		data = parse_qs(bytearray(req.get("body")).decode("utf-8"))
+		data = parse_qs(req.body)
 
 		name = data.get("name")[0]
 		if name is None: 
