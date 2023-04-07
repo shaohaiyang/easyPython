@@ -11,12 +11,14 @@ db = Prisma(auto_register=True)
 db.connect()
 
 app = Robyn(__file__)
+websocket = WS(app, "/webst")
 
 current_dir = path.dirname(__file__)
 jinja_template = JinjaTemplate(path.join(current_dir, "templates"))
 
 
 @app.get("/")
+@app.get("/post")
 async def h(req):
 	try:
 		#posts = db.post.query_raw('''select * from Post order by title desc''')
@@ -164,7 +166,7 @@ async def delete(req: Request):
 		return jsonify({"error": "Post doesn't exist."})
 	return ""
 
-
+# simple user demo
 @app.get("/user")
 async def getuser(req):
 	try:
@@ -194,6 +196,29 @@ async def adduser(req):
 		return jsonify({
 			"error": "wrong post json params!"
 		})
+###########################################
+i = -1
+# simple websocket demo
+@websocket.on("message")
+def connect():
+	global i
+	i += 1
+	if i == 0:
+		return "Hello ?"
+	elif i == 1:
+		return "Who are u?"
+	elif i == 2:
+		return "haha, I'm shy."
+	elif i == 3:
+		i = -1
+		return "again!"
 
+@websocket.on("close")
+def close():
+	return "Goodbye world, from ws"
 
+@websocket.on("connect")
+def message():
+	return "Hello world, from ws"
+###########################################
 app.start(port=5555, url="0.0.0.0") # url defaults to 127.0.0.1
