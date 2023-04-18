@@ -81,7 +81,7 @@ async def addpost(req: Request):
 @app.get("/view/:id")
 async def getpost(req):
 	try:
-		postId = int(req.params.get("id")) #(req.get("params").get("id")) unused
+		postId = int(req.path_params.get("id")) #(req.get("path_params").get("id")) unused
 		if DEBUG: print(postId, "view")
 
 		post = db.post.find_unique(where={'id': postId}, include={'author': True})
@@ -107,7 +107,7 @@ async def getpost(req):
 
 @app.put("/edit/:id")
 async def edit(req):
-	postId = int(req.params.get("id"))
+	postId = int(req.path_params.get("id"))
 	if DEBUG: print(postId," edit")
 
 	post = db.post.find_unique(where={'id': postId}, include={'author': True})
@@ -130,7 +130,7 @@ async def edit(req):
 @app.put("/update/:id")
 async def update(req):
 	try:
-		postId = int(req.params.get("id"))
+		postId = int(req.path_params.get("id"))
 		if DEBUG: print(postId," update")
 
 		data = parse_qs(req.body)
@@ -158,7 +158,7 @@ async def update(req):
 
 @app.put("/delete/:id")
 async def delete(req: Request):
-	postId = int(req.params.get("id"))
+	postId = int(req.path_params.get("id"))
 	if DEBUG: print(postId," delete")
 
 	post = db.post.delete(where={'id': postId})
@@ -194,7 +194,7 @@ async def adduser(req):
 		return user.json(indent=2)
 	except:
 		return jsonify({
-			"error": "wrong post json params!"
+			"error": "wrong post json path_params!"
 		})
 ###########################################
 i = -1
