@@ -1,4 +1,4 @@
-from robyn import Robyn, serve_file, serve_html, jsonify, WS
+from robyn import Robyn, serve_file, serve_html, jsonify, WebSocket
 from robyn.robyn import Response, Request
 from robyn.templating import JinjaTemplate
 from urllib.parse import parse_qs
@@ -11,7 +11,7 @@ db = Prisma(auto_register=True)
 db.connect()
 
 app = Robyn(__file__)
-websocket = WS(app, "/webst")
+websocket = WebSocket(app, "/webst")
 
 current_dir = path.dirname(__file__)
 jinja_template = JinjaTemplate(path.join(current_dir, "templates"))
@@ -19,7 +19,7 @@ jinja_template = JinjaTemplate(path.join(current_dir, "templates"))
 
 @app.get("/")
 @app.get("/post")
-async def h(req):
+async def head(req):
 	try:
 		#posts = db.post.query_raw('''select * from Post order by title desc''')
 		posts = db.post.find_many( order={"title":'asc'}, include={"author": True} )
@@ -221,4 +221,4 @@ def close():
 def message():
 	return "Hello world, from ws"
 ###########################################
-app.start(port=5555, url="0.0.0.0") # url defaults to 127.0.0.1
+app.start(port=5555, host="0.0.0.0") # host defaults to 127.0.0.1
