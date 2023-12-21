@@ -1,0 +1,28 @@
+generator client {
+  provider             = "prisma-client-py"
+  interface = "sync"
+  recursive_type_depth = -1
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./sqlite.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name      String
+  posts     Post[]
+}
+ 
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  type	    String
+  message   String
+  views     Int      @default(0)
+  createdAt String
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
+}

@@ -1,0 +1,134 @@
+{# templates/index.html #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title> Notification System </title>
+  <link href="https://ddt.ddd.com/static/bootstrap.min.css" rel="stylesheet">
+  <script src="https://ddt.ddd.com/static/htmx.min.js"></script>
+  <script src="https://ddt.ddd.com/static/alpine.min.js"></script>
+  <script src="https://ddt.ddd.com/static/jquery.min.js"></script>
+
+  <script>
+  $(document).ready(function() {
+    // Get click event, assign button to var, and get values from that var
+    $('#aBtnGroup button').on('click', function() {
+      var thisBtn = $(this);
+      thisBtn.addClass('active').siblings().removeClass('active');
+      var btnText = thisBtn.text();
+      var btnValue = thisBtn.val();
+      $('#selectedVal').text(btnValue);
+    document.getElementById("msg_type").value = btnValue;
+    });
+    // You can use this to set default value
+    $('#aBtnGroup button[value="0"]').click();
+  });
+  
+  function validateForm() {
+     var x = document.forms["myForm"]["message"].value;
+     if ( x == null || x == "" ) {
+        alert("没有啥事就别发了。");
+        return false;
+     }
+  }
+  </script>
+
+  <style type="text/css">
+      body{
+          padding: 20px;
+      }
+
+      table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+      }
+
+      tr.htmx-swapping td {
+          opacity: 0;
+          transition: opacity 0.3s ease-out;
+      }
+
+      td, th {
+          border: 1px solid #383737;
+          text-align: left;
+          padding: 8px;
+      }
+
+      tr:nth-child(even) {
+          background-color: #dddddd;
+      }
+
+      div {
+          margin:10px 0;
+      }
+  </style>
+</head>
+<!-- Place <body> </body> code here -->
+<body>
+  <h1>单单弹通知系统上线了!  ❤️ Powerby {{framework}}</h1>
+  <div x-data="{show: false}">
+  <button @click="show=!show" class="btn btn-primary">发布新通知</button>
+    <div x-show="show">
+      <hr>
+      <form name="myForm" hx-post="/submit" onsubmit="return validateForm()" hx-swap="beforebegin" hx-target="#new-msg" class="mb-3">
+
+      <div class="form-check form-switch">🔔 
+      <input class="form-check-input" type="checkbox" id="mySwitch" name="msg_speak">
+      <label class="badge bg-primary" style="font-size:16px;" for="mySwitch"> 开启语音播报</label>
+      </div>
+  
+      <div id="aBtnGroup" class="btn-group">
+      <button type="button" class="btn btn-success" value="0">💬 一般消息</button>
+      <button type="button" class="btn btn-warning" value="1">📌 重要消息</button>
+      <button type="button" class="btn btn-danger" value="2">👏 紧急消息</button>
+      </div>
+  
+      <input type="hidden" id="msg_type" value="" name="msg_type"/>
+      <input type="text" name="title" value="学校通知" class="form-control form-control-lg mb-3" />
+      <input type="text" placeholder="消息内容，没有内容发不了哦！" name="message" class="form-control form-control-lg mb-3" />
+      <button type="submit" class="btn btn-danger">发布!</button>
+      </form>
+    </div>
+  </div>
+  
+  <table class="table  table-hover">
+    <thead>
+      <tr class="text-warning bg-dark">
+        <th scope="col">通知标题</th>
+        <th scope="col">消息内容</th>
+        <th scope="col">阅读人数</th>
+        <th scope="col">发布时间</th>
+      </tr>
+    </thead>
+    <tbody id="new-msg" hx-target="closest tr" hx-swap="outerHTML swap:0.3s">
+      {%for post in data%}
+      <tr>
+{% if post.type == "1" %}
+          <td class="text-primary"><b>
+{% elif post.type == "2" %}
+          <td class="text-danger"><b>
+{% else %}
+          <td>
+{% endif %}
+	  {{post.title}}
+	  </td>
+          <td>
+<span id="content" class="d-inline-block text-truncate" style="max-width:400px;">
+{{post.message}}
+</span>
+	  </td>
+          <td>{{post.views}}</td>
+          <td>{{post.createdAt}}</td>
+<!--  
+          <td>
+<button class="btn btn-info" hx-put="/view/{{post.id}}">查看</button>
+          </td>
+-->
+      </tr> 
+      {%endfor%}
+    </tbody>
+  </table>
+</script>
+</body>
+</html>
