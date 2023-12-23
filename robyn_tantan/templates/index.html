@@ -7,6 +7,7 @@
   <link href="https://ddt.ddd.com/static/bootstrap.min.css" rel="stylesheet">
   <script src="https://ddt.ddd.com/static/htmx.min.js"></script>
   <script src="https://ddt.ddd.com/static/alpine.min.js"></script>
+  <script src="https://ddt.ddd.com/static/bootstrap.bundle.min.js"></script>
   <script src="https://ddt.ddd.com/static/jquery.min.js"></script>
 
   <script>
@@ -56,7 +57,7 @@
       }
 
       tr:nth-child(even) {
-          background-color: #dddddd;
+          background-color: #eeeeff;
       }
 
       div {
@@ -67,12 +68,16 @@
 <!-- Place <body> </body> code here -->
 <body>
   <h1>单单弹通知系统上线了!  ❤️ Powerby {{framework}}</h1>
-  <div x-data="{show: false}">
+<!--
+  <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#new" aria-expanded="false" aria-controls="new">发布新通知</button>
+  <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#content" aria-expanded="true" aria-controls="content"> 查看通知 </button>
+-->
+
+  <div x-data="{show: true}">
   <button @click="show=!show" class="btn btn-primary">发布新通知</button>
     <div x-show="show">
       <hr>
       <form name="myForm" hx-post="/submit" onsubmit="return validateForm()" hx-swap="beforebegin" hx-target="#new-msg" class="mb-3">
-
       <div class="form-check form-switch">🔔 
       <input class="form-check-input" type="checkbox" id="mySwitch" name="msg_speak">
       <label class="badge bg-primary" style="font-size:16px;" for="mySwitch"> 开启语音播报</label>
@@ -92,7 +97,10 @@
     </div>
   </div>
   
-  <table class="table  table-hover">
+  <div x-data="{show2: false}">
+  <button @click="show2=!show2" class="btn btn-success">查看通知</button>
+    <div x-show="show2">
+  <table class="table table-hover">
     <thead>
       <tr class="text-warning bg-dark">
         <th scope="col">通知标题</th>
@@ -114,7 +122,7 @@
 	  {{post.title}}
 	  </td>
           <td>
-<span id="content" class="d-inline-block text-truncate" style="max-width:400px;">
+<span id="msg" class="d-inline-block text-truncate" style="max-width:400px;">
 {{post.message}}
 </span>
 	  </td>
@@ -129,6 +137,7 @@
       {%endfor%}
     </tbody>
   </table>
-</script>
+  </div>
+  </div>
 </body>
 </html>
