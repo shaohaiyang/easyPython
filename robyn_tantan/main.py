@@ -97,7 +97,7 @@ async def addpost(req: Request):
   if DEBUG: print(msg)
   client = connect_mqtt(topic, msg)
   client.loop_start()
-  #client.loop_stop()
+  client.loop_stop()
 
   response = f"""<tr>
     <td>{post.title}</td>

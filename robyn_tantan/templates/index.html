@@ -32,6 +32,9 @@
         return false;
      }
   }
+
+  $(function () { $("[data-toggle='tooltip']").tooltip(); });
+
   </script>
 
   <style type="text/css">
@@ -67,40 +70,43 @@
 </head>
 <!-- Place <body> </body> code here -->
 <body>
-  <h1>单单弹通知系统上线了!  ❤️ Powerby {{framework}}</h1>
-<!--
-  <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#new" aria-expanded="false" aria-controls="new">发布新通知</button>
-  <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#content" aria-expanded="true" aria-controls="content"> 查看通知 </button>
--->
+<h1>单单弹通知系统上线了!  ❤️ Powerby {{framework}}</h1>
 
-  <div x-data="{show: true}">
-  <button @click="show=!show" class="btn btn-primary">发布新通知</button>
-    <div x-show="show">
-      <hr>
+<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+  <li class="nav-item" role="presentation">
+  <button class="nav-link btn btn-info" id="pills-new-tab" data-bs-toggle="pill" data-bs-target="#pills-new" type="button" role="tab" aria-controls="pills-new" aria-selected="true">发布新通知</button>
+  </li>
+  <li class="nav-item" role="presentation">
+  <button class="nav-link btn btn-danger active" id="pills-view-tab" data-bs-toggle="pill" data-bs-target="#pills-view" type="button" role="tab" aria-controls="pills-view" aria-selected="false">&nbsp;查看通知&nbsp;</button>
+  </li>
+</ul>
+
+<div class="tab-content" id="pills-tabContent">
+  <div class="tab-pane fade show" id="pills-new" role="tabpanel" aria-labelledby="pills-new-tab">
       <form name="myForm" hx-post="/submit" onsubmit="return validateForm()" hx-swap="beforebegin" hx-target="#new-msg" class="mb-3">
-      <div class="form-check form-switch">🔔 
+      <br>
+      <div class="form-check form-switch">
       <input class="form-check-input" type="checkbox" id="mySwitch" name="msg_speak">
-      <label class="badge bg-primary" style="font-size:16px;" for="mySwitch"> 开启语音播报</label>
+      <label class="badge bg-primary" style="font-size:17px;" for="mySwitch"> 🔔 开启语音播报</label>
       </div>
-  
+      <br>
+
       <div id="aBtnGroup" class="btn-group">
-      <button type="button" class="btn btn-success" value="0">💬 一般消息</button>
-      <button type="button" class="btn btn-warning" value="1">📌 重要消息</button>
-      <button type="button" class="btn btn-danger" value="2">👏 紧急消息</button>
+      <button type="button" class="btn btn-success btn-lg" data-bs-placement="top" data-toggle="tooltip" title="系统自带的消息弹框" value="0">💬&nbsp;一般消息&nbsp;</button>
+      <button type="button" class="btn btn-warning btn-lg" data-bs-placement="top" data-toggle="tooltip" title="屏幕居中并前置显示" value="1">📌&nbsp;重要消息&nbsp;</button>
+      <button type="button" class="btn btn-danger btn-lg" data-bs-placement="top" data-toggle="tooltip" title="全屏消息，退格键关闭" value="2">👏&nbsp;紧急消息&nbsp;</button>
       </div>
+      <br>
   
       <input type="hidden" id="msg_type" value="" name="msg_type"/>
       <input type="text" name="title" value="学校通知" class="form-control form-control-lg mb-3" />
       <input type="text" placeholder="消息内容，没有内容发不了哦！" name="message" class="form-control form-control-lg mb-3" />
-      <button type="submit" class="btn btn-danger">发布!</button>
+      <button type="submit" class="btn btn-danger">&nbsp;发&nbsp;布!&nbsp;</button>
       </form>
-    </div>
   </div>
   
-  <div x-data="{show2: false}">
-  <button @click="show2=!show2" class="btn btn-success">查看通知</button>
-    <div x-show="show2">
-  <table class="table table-hover">
+  <div class="tab-pane fade show active" id="pills-view" role="tabpanel" aria-labelledby="pills-view-tab">
+    <table class="table table-hover">
     <thead>
       <tr class="text-warning bg-dark">
         <th scope="col">通知标题</th>
@@ -113,31 +119,24 @@
       {%for post in data%}
       <tr>
 {% if post.type == "1" %}
-          <td class="text-primary"><b>
+        <td class="text-primary"><b>
 {% elif post.type == "2" %}
-          <td class="text-danger"><b>
+        <td class="text-danger"><b>
 {% else %}
-          <td>
+        <td>
 {% endif %}
-	  {{post.title}}
-	  </td>
-          <td>
-<span id="msg" class="d-inline-block text-truncate" style="max-width:400px;">
-{{post.message}}
-</span>
+        {{post.title}}
+        </td>
+        <td>
+      <span id="msg" class="d-inline-block text-truncate" style="max-width:400px;" data-toggle="tooltip" title={{post.message}}> {{post.message}} </span>
 	  </td>
           <td>{{post.views}}</td>
           <td>{{post.createdAt}}</td>
-<!--  
-          <td>
-<button class="btn btn-info" hx-put="/view/{{post.id}}">查看</button>
-          </td>
--->
       </tr> 
       {%endfor%}
     </tbody>
-  </table>
+    </table>
   </div>
-  </div>
+</div>
 </body>
 </html>
