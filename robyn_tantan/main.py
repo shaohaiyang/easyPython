@@ -9,7 +9,7 @@ from pytz import timezone
 from datetime import datetime
 from paho.mqtt import client as mqtt_client
 
-DEBUG=False
+DEBUG = True
 db = Prisma(auto_register=True)
 db.connect()
 
@@ -94,10 +94,12 @@ async def addpost(req: Request):
       )
 
   msg = f"{int(msg_type)}^{speak}^^{title}^{message}"
-  if DEBUG: print(msg)
-  client = connect_mqtt(topic, msg)
-  client.loop_start()
-  client.loop_stop()
+  if DEBUG:
+    print(msg)
+  else:
+    client = connect_mqtt(topic, msg)
+    client.loop_start()
+    client.loop_stop()
 
   response = f"""<tr>
     <td>{post.title}</td>
