@@ -4,11 +4,13 @@
 <head>
   <meta charset="utf-8">
   <title> Notification System </title>
-  <link href="https://ddt.ddd.com/static/bootstrap.min.css" rel="stylesheet">
-  <script src="https://ddt.ddd.com/static/htmx.min.js"></script>
-  <script src="https://ddt.ddd.com/static/alpine.min.js"></script>
-  <script src="https://ddt.ddd.com/static/bootstrap.bundle.min.js"></script>
-  <script src="https://ddt.ddd.com/static/jquery.min.js"></script>
+  <link  href="https://ddt.ddz.me/static/bootstrap.min.css" rel="stylesheet">
+  <link  href="https://ddt.ddz.me/static/jquery.datetimepicker.css" rel="stylesheet"/>
+  <script src="https://ddt.ddz.me/static/bootstrap.bundle.min.js"></script>
+  <script src="https://ddt.ddz.me/static/jquery.min.js"></script>
+  <script src="https://ddt.ddz.me/static/jquery.datetimepicker.js"></script>
+  <script src="https://ddt.ddz.me/static/alpine.min.js"></script>
+  <script src="https://ddt.ddz.me/static/htmx.min.js"></script>
 
   <script>
   $(document).ready(function() {
@@ -23,6 +25,32 @@
     });
     // You can use this to set default value
     $('#aBtnGroup button[value="0"]').click();
+    $("[data-toggle='tooltip']").tooltip(); 
+    $('#myDatePicker').datetimepicker({
+      date: new Date(),
+      language: 'zh',
+      firstDayOfWeek: 1,
+      viewMode: 'YMDHM',
+      onOk: function() {
+	var timeValue = this.getText();
+	var date1 = Math.floor(Date.now() / 1000)
+	var date2 = Math.floor(new Date(timeValue).getTime() / 1000);
+
+	//alert(timeValue +  "定时：" + date2 + " 当前：" + date1);
+	if ( date2 < date1 + 80 ){
+	  alert("你的定时时间太短了! 至少延时三分钟以上吧？ ");
+	  return false;
+	}
+	else {
+	  $('#submit').text("定时发送 ⏰ 时间:  " + timeValue);
+	  document.getElementById("send_time").value = timeValue;
+	}
+      },
+      onClear: function() {
+	document.getElementById("send_time").value = "";
+	$('#submit').text("发 送! 🚀");
+      },
+    });
   });
   
   function validateForm() {
@@ -32,8 +60,6 @@
         return false;
      }
   }
-
-  $(function () { $("[data-toggle='tooltip']").tooltip(); });
 
   </script>
 
@@ -68,9 +94,10 @@
       }
   </style>
 </head>
-<!-- Place <body> </body> code here -->
+<!-- Place <body> </body> code here
+-->
 <body>
-<h1>单单弹通知系统上线了!  ❤️ Powerby {{framework}}</h1>
+<h1>单单弹通知系统上线了!  ❤️ </h1>
 
 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
   <li class="nav-item" role="presentation">
@@ -82,7 +109,7 @@
 </ul>
 
 <div class="tab-content" id="pills-tabContent">
-  <div class="tab-pane fade show" id="pills-new" role="tabpanel" aria-labelledby="pills-new-tab">
+  <div class="tab-pane fade show " id="pills-new" role="tabpanel" aria-labelledby="pills-new-tab">
       <form name="myForm" hx-post="/submit" onsubmit="return validateForm()" hx-swap="beforebegin" hx-target="#new-msg" class="mb-3">
       <br>
       <div class="form-check form-switch">
@@ -90,18 +117,20 @@
       <label class="badge bg-primary" style="font-size:17px;" for="mySwitch"> 🔔 开启语音播报</label>
       </div>
       <br>
-
       <div id="aBtnGroup" class="btn-group">
-      <button type="button" class="btn btn-success btn-lg" data-bs-placement="top" data-toggle="tooltip" title="系统自带的消息弹框" value="0">💬&nbsp;一般消息&nbsp;</button>
-      <button type="button" class="btn btn-warning btn-lg" data-bs-placement="top" data-toggle="tooltip" title="屏幕居中并前置显示" value="1">📌&nbsp;重要消息&nbsp;</button>
-      <button type="button" class="btn btn-danger btn-lg" data-bs-placement="top" data-toggle="tooltip" title="全屏消息，退格键关闭" value="2">👏&nbsp;紧急消息&nbsp;</button>
+      <button type="button" class="btn btn-success btn-lg" data-bs-placement="top" data-toggle="tooltip" title="系统自带&消息弹框" value="0">💬&nbsp;一般消息&nbsp;</button>
+      <button type="button" class="btn btn-warning btn-lg" data-bs-placement="top" data-toggle="tooltip" title="屏幕居中&前置显示" value="1">📌&nbsp;重要消息&nbsp;</button>
+      <button type="button" class="btn btn-danger  btn-lg" data-bs-placement="top" data-toggle="tooltip" title="全屏消息&退格键关闭" value="2">👏&nbsp;紧急消息&nbsp;</button>
       </div>
       <br>
-  
+      <br>
+
+      <input type="hidden" id="send_time" value="" name="send_time"/>
       <input type="hidden" id="msg_type" value="" name="msg_type"/>
       <input type="text" name="title" value="学校通知" class="form-control form-control-lg mb-3" />
-      <input type="text" placeholder="消息内容，没有内容发不了哦！" name="message" class="form-control form-control-lg mb-3" />
-      <button type="submit" class="btn btn-danger">&nbsp;发&nbsp;布!&nbsp;</button>
+      <textarea class="form-control form-control-lg mb-3" name="message" rows="5" placeholder="消息内容，没有内容发不了哦！" ></textarea>
+      <div id="myDatePicker"></div>
+      <button type="submit" class="btn btn-danger" id="submit">&nbsp;发&nbsp;布&nbsp;! 🚀</button>
       </form>
   </div>
   
