@@ -41,7 +41,6 @@ def run():
 
 if __name__ == '__main__':
   with open(argv[1], "r") as f:
-    lines = f.readlines()
-    message = [line.rstrip() for line in lines if line.rstrip()][0]
+    message = f.read()
     if message:
       run()

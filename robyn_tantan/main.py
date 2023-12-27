@@ -76,6 +76,7 @@ async def addpost(req: Request):
   if not message:
     return
 
+  message = "".join([s for s in message.strip().splitlines(True) if s.strip()])
   msg_type = data.get("msg_type",['0'])[0]
   speak = data.get("msg_speak",['off'])[0]
   title = data.get("title",["重要通知"])[0]
