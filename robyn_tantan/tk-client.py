@@ -4,26 +4,17 @@ import pyttsx3
 from random import randint, choice
 from paho.mqtt import client as mqtt_client
 from threading import Thread
+from time import sleep
  
-kernel32 = ctypes.WinDLL("kernel32")
-user32 = ctypes.WinDLL("user32")
-server = "devops.upyun.com"
+DEBUG = True
+# mqtt server address and listen port
+server = "www.qq.com"
 port = 1883
+# mqtt receive channel topic name
 topic = "school/hzz"
-username = "hzz"
-password = "hzz87612487"
- 
-kernel32.GetComputerNameW.restype = ctypes.c_bool
-kernel32.GetComputerNameW.argtypes = (ctypes.c_wchar_p,ctypes.POINTER(ctypes.c_uint32))
-lenComputerName = ctypes.c_uint32()
-kernel32.GetComputerNameW(None, lenComputerName)
-computerName = ctypes.create_unicode_buffer(lenComputerName.value)
-kernel32.GetComputerNameW(computerName, lenComputerName)
-computename = computerName.value
-disk_info = os.popen('vol '+'c:', 'r').read().split()
-disk_serial = disk_info[len(disk_info)-1:][0]
-client_id = f'hzz-{computename}-{disk_serial}'
- 
+# mqtt identity username/password verification
+username = "hzc"
+password = "hzc87612487"
 colors = [ "#C7EDCC", "#FFFFFF", "#FAF9DE", "#FFF2E2", "#FDE6E0", "#DCE2F1", "#E9EBFE", "#EAEAEF", "#E3EDCD", "#CCE8CF" ]
 # icons
 WS_TOPMOST = 0x1000
@@ -31,28 +22,52 @@ ICON_EXCLAIM = 0x30
 ICON_INFO = 0x40
 ICON_STOP = 0x10
  
+ # get windows machine name
+try:
+    kernel32 = ctypes.WinDLL("kernel32")
+    kernel32.GetComputerNameW.restype = ctypes.c_bool
+    kernel32.GetComputerNameW.argtypes = (ctypes.c_wchar_p,ctypes.POINTER(ctypes.c_uint32))
+    lenComputerName = ctypes.c_uint32()
+    kernel32.GetComputerNameW(None, lenComputerName)
+    computerName = ctypes.create_unicode_buffer(lenComputerName.value)
+    kernel32.GetComputerNameW(computerName, lenComputerName)
+    computename = computerName.value
+except Exception as e:
+    computename = "Unknown-PC"
+
+# get disk serial number to combine mqtt client_id
+try:
+    disk_info = os.popen('vol '+'c:', 'r').read().split()
+    disk_serial = disk_info[len(disk_info)-1:][0]
+    client_id = f'hzz-{computename}-{disk_serial}'
+except Exception as e:
+    client_id = f'hzz-{computename}-{randint(0, 1000)}'
+
+# 返回屏幕自适应的字体大小
 def count_size(len, width, height):
     size = 36
     while size < 310:
         pix = (size * 96 / 72)
         col = width // pix
         row = height // pix
- 
         if row < 4 or int(col * row) <= len:
             return (size - 2) if size < 300 else 300
             break
         else:
             size += 2 
- 
+
+# 护眼色的十六进制转RGB
 def hex_to_rgb(value):
     value = value.lstrip('#')
     lv = len(value)
     return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
  
+# 调用系统语音接口播放消息
 def say_message(message):
     try:
         engine = pyttsx3.init()
         voices = engine.getProperty('voices')
+        # 播放中英文混合文字
         engine.setProperty('voice', voices[0].id)
         engine.setProperty('rate', 220)
         engine.say(message)
@@ -61,10 +76,11 @@ def say_message(message):
     except Exception as e:
         pass
  
+# 使用tkinter显示消息
 def tk_message(title,message,font_size, type=2):
     import tkinter as tk
     from tkinter.font import Font
-    from tkhtmlview import HTMLText, RenderHTML
+    #from tkhtmlview import HTMLText, RenderHTML
  
     def quit(dummy=None):
         root.destroy()
@@ -77,11 +93,11 @@ def tk_message(title,message,font_size, type=2):
  
     root = tk.Tk()
     root.title(title)
- 
+    # 获取屏幕的大小，测试了 winfo_这个函数好使
     screen_w = root.winfo_screenwidth()
     screen_h = root.winfo_screenheight()
     word_count = len(message)
- 
+    # 区分类型，2为全屏显示，1为屏幕一半居中显示
     if type == 2:
         screen_size = f"{screen_w}x{screen_h}+0+0"
         root.attributes('-fullscreen', True)
@@ -94,10 +110,11 @@ def tk_message(title,message,font_size, type=2):
         root.geometry(screen_size)
         if not font_size:
             font_size = count_size(word_count, screen_w // 2, screen_h // 2)
- 
-    print(screen_w, screen_h, word_count, font_size )
+
+    if DEBUG: print(screen_w, screen_h, word_count, font_size )
     font_type = Font(family="楷体", size=font_size)
     root.attributes('-topmost', True) 
+    # bind shortcut key
     root.bind('<Escape>', toggle_fs)
     root.bind('<BackSpace>', quit)
  
@@ -112,10 +129,11 @@ def tk_message(title,message,font_size, type=2):
     text.configure(font=font_type, background=choice(colors))
     text.configure(state='disabled')
     text.pack(expand=True, fill=tk.BOTH)
- 
+    # 窗口聚焦点
     root.focus_force()
     root.mainloop()
  
+# 使用turtle模块动画出消息，太幼稚了，不用了
 def tt_message(title, message, font_size):
     import turtle as tt
     w, h = 1000, 800
@@ -147,15 +165,19 @@ def tt_message(title, message, font_size):
  
     win.exitonclick()
  
- 
+# 主程序，与mqtt通讯 
 def connect_mqtt(topic):
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
-            client.subscribe(topic, qos=1)
-            print(f"[{client_id}] {computename} Connected to MQTT Server! Session PresentID: {flags['session present']}")
+            while True:
+                try:
+                    client.subscribe(topic, qos=1)
+                    if DEBUG: print(f"[{client_id}] Connected to MQTT Server! SessionID: {flags['session present']}")
+                    break
+                except Exception as e:
+                    sleep(3)
         else:
-            with open(r"C:\Users\Desktop\mqtt_log.txt", "a+") as _file:
-                _file.write(f"Failed to connect, return code:::  {rc}")
+            client.reconnect()
  
     def on_message(client, userdata, msg):
         recv_msg = msg.payload.decode().split('^')
@@ -165,15 +187,19 @@ def connect_mqtt(topic):
         title = str(recv_msg[3])
         body_Str = str(recv_msg[4])
  
-        print(f"模式：{emegy} | 语音：{speak} | 标题：{title} | 消息: {body_Str}, 字体大小: {size}") 
+        if DEBUG: print(f"模式：{emegy} | 语音：{speak} | 标题：{title} | 消息: {body_Str}, 字体大小: {size}") 
  
         if speak == 1:
             t = Thread(target=say_message, args=(body_Str,))
             t.start()
  
         if emegy == 0:
-            messagebox = lambda info, title="重要消息", style=0: user32.MessageBoxW(0, str(info), str(title), style)
-            messagebox(body_Str,title, ICON_INFO | WS_TOPMOST)
+            try:
+                user32 = ctypes.WinDLL("user32")
+                messagebox = lambda info, title="重要消息", style=0: user32.MessageBoxW(0, str(info), str(title), style)
+                messagebox(body_Str,title, ICON_INFO | WS_TOPMOST)
+            except Exception as e:
+                pass
         elif emegy == 2:
             tk_message(title, body_Str, size, type=2)
         else:
@@ -187,25 +213,30 @@ def connect_mqtt(topic):
     client.on_message = on_message
     return client
  
+# 加入自动启动菜单
 def add_to_startup():
-    USER_NAME = getpass.getuser()
     file_name =  os.path.basename(sys.argv[0])
     _, file_extension = os.path.splitext(file_name)
  
     if  file_extension.lower() == ".exe":
+        try:
+            USER_NAME = getpass.getuser()
+        except Exception as e:
+            USER_NAME = "Administrator"
         bat_path = r"C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" % USER_NAME
         bat_file = os.path.join(bat_path, "popnotify.bat")
         with open(bat_file, "w+") as _file:
             _file.write(r'start "" "%s"' % os.path.join(os.getcwd(), file_name))
+                
  
 def run():
-    client = connect_mqtt(topic)
-    try:
-        client.loop_forever()
-    except Exception as e:
-        client.reconnect()
-        with open(r"C:\Users\Desktop\mqtt_log.txt", "a+") as _file:
-            _file.write(str(e) + 'reconnect..... \r\n')
+    while True:
+        try:
+            client = connect_mqtt(topic)
+            break
+        except Exception as e:
+            sleep(5)
+    client.loop_forever()
  
  
 if __name__ == '__main__':
