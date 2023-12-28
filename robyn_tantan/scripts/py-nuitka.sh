@@ -1,0 +1,1 @@
+python  -m nuitka  --onefile --standalone --enable-plugin=tk-inter --include-package=pyttsx3 --no-pyi-file --windows-disable-console --windows-file-version=1.0 --windows-company-name=Shaohaiyang --windows-icon-from-ico=.\tan.ico  .\main.py -o 弹个寂寞

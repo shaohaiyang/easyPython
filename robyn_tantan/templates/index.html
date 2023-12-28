@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title> Notification System </title>
+  <title> 单单弹通知 </title>
   <link  href="https://ddt.ddd.com/static/bootstrap.min.css" rel="stylesheet">
   <link  href="https://ddt.ddd.com/static/jquery.datetimepicker.css" rel="stylesheet"/>
   <script src="https://ddt.ddd.com/static/bootstrap.bundle.min.js"></script>
@@ -120,12 +120,30 @@
   </li>
   <li class="nav-item" role="presentation">
   <button class="nav-link btn btn-danger active" id="pills-view-tab" data-bs-toggle="pill" data-bs-target="#pills-view" type="button" role="tab" aria-controls="pills-view" aria-selected="false">&nbsp;查看通知&nbsp;</button>
+  <!-- onclick="javascript:location.reload();" //查看通知 -->
   </li>
 </ul>
 
+<div id="popup" onclick="showModal()"></div>
+<div id="gfg" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"> 发布成功 </h5>
+      </div>
+      <div class="modal-body">
+        <p> 通知发布成功 </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Close </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="tab-content" id="pills-tabContent">
   <div class="tab-pane fade show " id="pills-new" role="tabpanel" aria-labelledby="pills-new-tab">
-      <form name="myForm" hx-post="/submit" onsubmit="return validateForm()" hx-swap="beforebegin" hx-target="#new-msg" class="mb-3">
+      <form name="myForm" class="mb-3" onsubmit="return validateForm()" hx-post="/submit" hx-swap="beforebegin" hx-target="#new-msg">
       <br>
       <div class="form-check form-switch">
       <input class="form-check-input" type="checkbox" id="mySwitch" name="msg_speak">
@@ -148,24 +166,6 @@
       <button type="submit" class="btn btn-danger" id="submit">&nbsp;发&nbsp;布&nbsp;! 🚀</button>
       </form>
   </div>
-
-  <div id="popup" onclick="showModal()"></div>
-  <div id="gfg" class="modal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-	<div class="modal-header">
-	  <h5 class="modal-title"> 发布成功 </h5>
-	</div>
-	<div class="modal-body">
-	  <p> 通知发布成功 </p>
-	</div>
-	<div class="modal-footer">
-	  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Close </button>
-	</div>
-      </div>
-    </div>
-  </div>
-
 
   <div class="tab-pane fade show active" id="pills-view" role="tabpanel" aria-labelledby="pills-view-tab">
     <table class="table table-hover">
