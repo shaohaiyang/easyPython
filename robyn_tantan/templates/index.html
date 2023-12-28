@@ -21,7 +21,19 @@
       var btnText = thisBtn.text();
       var btnValue = thisBtn.val();
       $('#selectedVal').text(btnValue);
-    document.getElementById("msg_type").value = btnValue;
+      if (btnValue == 0){
+	$("#title").css("background-color","#188855");
+	$("#title").css("color","white");
+      }
+      else if (btnValue == 1){
+	$("#title").css("background-color","#ffcc33");
+	$("#title").css("color","black");
+      }
+      else {
+	$("#title").css("background-color","#ff3333");
+	$("#title").css("color","white");
+      }
+      document.getElementById("msg_type").value = btnValue;
     });
     // You can use this to set default value
     $('#aBtnGroup button[value="0"]').click();
@@ -54,11 +66,14 @@
   });
   
   function validateForm() {
-     var x = document.forms["myForm"]["message"].value;
-     if ( x == null || x == "" ) {
-        alert("没有啥事就别发了。");
-        return false;
-     }
+    var x = document.forms["myForm"]["message"].value;
+    if ( x == null || x == "" ) {
+      alert("没有啥事就别发了。");
+      return false;
+    }
+    else{
+      $('#popup').click();
+    }
   }
 
   </script>
@@ -127,13 +142,31 @@
 
       <input type="hidden" id="send_time" value="" name="send_time"/>
       <input type="hidden" id="msg_type" value="" name="msg_type"/>
-      <input type="text" name="title" value="学校通知" class="form-control form-control-lg mb-3" />
-      <textarea maxlength="500" class="form-control form-control-lg mb-3" name="message" rows="5" placeholder="消息内容，没有内容发不了哦！" ></textarea>
+      <input type="text" id="title" name="title" value="学校通知" class="form-control form-control-lg mb-3" />
+      <textarea maxlength="500" class="form-control form-control-lg mb-3" name="message" rows="5" placeholder="注意：默认发布为 '一般消息'，但没有内容发不了哦！" ></textarea>
       <div id="myDatePicker"></div>
       <button type="submit" class="btn btn-danger" id="submit">&nbsp;发&nbsp;布&nbsp;! 🚀</button>
       </form>
   </div>
-  
+
+  <div id="popup" onclick="showModal()"></div>
+  <div id="gfg" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+	<div class="modal-header">
+	  <h5 class="modal-title"> 发布成功 </h5>
+	</div>
+	<div class="modal-body">
+	  <p> 通知发布成功 </p>
+	</div>
+	<div class="modal-footer">
+	  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Close </button>
+	</div>
+      </div>
+    </div>
+  </div>
+
+
   <div class="tab-pane fade show active" id="pills-view" role="tabpanel" aria-labelledby="pills-view-tab">
     <table class="table table-hover">
     <thead>
@@ -167,5 +200,11 @@
     </table>
   </div>
 </div>
+<script>
+  let modal = new bootstrap.Modal(document.getElementById('gfg'));
+  function showModal() {
+    modal.show();
+  }
+</script>
 </body>
 </html>
