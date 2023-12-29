@@ -39,7 +39,7 @@ def connect_mqtt(topic, message):
   def on_connect(client, userdata, flags, rc):
     if rc == 0:
       if DEBUG: print(f"{rc} -> Send to topic: {topic}")
-      client.publish(topic, message)
+      client.publish(topic, message, qos=2, retain=True)
     else:
       if DEBUG: print(f"{rc} -> Failed to Send to topic: {topic}")
       pass

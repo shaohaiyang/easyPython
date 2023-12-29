@@ -17,21 +17,19 @@
     // Get click event, assign button to var, and get values from that var
     $('#aBtnGroup button').on('click', function() {
       var thisBtn = $(this);
+      // click button and change color
       thisBtn.addClass('active').siblings().removeClass('active');
-      var btnText = thisBtn.text();
       var btnValue = thisBtn.val();
-      $('#selectedVal').text(btnValue);
+      //var btnText = thisBtn.text();
+      //$('#selectedVal').text(btnValue);
       if (btnValue == 0){
-	$("#title").css("background-color","#188855");
-	$("#title").css("color","white");
+	$("#title").css({"background-color":"#188855", "color":"white"});
       }
       else if (btnValue == 1){
-	$("#title").css("background-color","#ffcc33");
-	$("#title").css("color","black");
+	$("#title").css({"background-color":"#ffcc33", "color":"black"});
       }
       else {
-	$("#title").css("background-color","#ff3333");
-	$("#title").css("color","white");
+	$("#title").css({"background-color":"#ff3333", "color":"white"});
       }
       document.getElementById("msg_type").value = btnValue;
     });
@@ -64,18 +62,6 @@
       },
     });
   });
-  
-  function validateForm() {
-    var x = document.forms["myForm"]["message"].value;
-    if ( x == null || x == "" ) {
-      alert("没有啥事就别发了。");
-      return false;
-    }
-    else{
-      $('#popup').click();
-    }
-  }
-
   </script>
 
   <style type="text/css">
@@ -109,30 +95,28 @@
       }
   </style>
 </head>
-<!-- Place <body> </body> code here
--->
-<body>
-<h1>单单弹通知系统上线了!  ❤️ </h1>
 
+<body>
+<h1>单单弹通知系统上线了! ❤️ </h1>
 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
   <li class="nav-item" role="presentation">
-  <button class="nav-link btn btn-info" id="pills-new-tab" data-bs-toggle="pill" data-bs-target="#pills-new" type="button" role="tab" aria-controls="pills-new" aria-selected="true">发布新通知</button>
+  <button class="nav-link btn btn-info" id="pills-new-tab" data-bs-toggle="pill" data-bs-target="#pills-new" type="button" role="tab" aria-controls="pills-new">发布新通知</button>
   </li>
   <li class="nav-item" role="presentation">
-  <button class="nav-link btn btn-danger active" id="pills-view-tab" data-bs-toggle="pill" data-bs-target="#pills-view" type="button" role="tab" aria-controls="pills-view" aria-selected="false">&nbsp;查看通知&nbsp;</button>
+  <button class="nav-link btn btn-danger active" id="pills-view-tab" data-bs-toggle="pill" data-bs-target="#pills-view" type="button" role="tab" aria-controls="pills-view">&nbsp;查看通知&nbsp;</button>
   <!-- onclick="javascript:location.reload();" //查看通知 -->
   </li>
 </ul>
 
-<div id="popup" onclick="showModal()"></div>
+<!-- <button class="btn btn-success" id="popup" onclick="showModal()">popup</button> -->
 <div id="gfg" class="modal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"> 发布成功 </h5>
+        <h4 class="modal-title"> 发布成功 </h4>
       </div>
       <div class="modal-body">
-        <p> 通知发布成功 </p>
+        <h5> 通知发布成功! </h5>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Close </button>
@@ -160,7 +144,7 @@
 
       <input type="hidden" id="send_time" value="" name="send_time"/>
       <input type="hidden" id="msg_type" value="" name="msg_type"/>
-      <input type="text" id="title" name="title" value="学校通知" class="form-control form-control-lg mb-3" />
+      <input type="text" id="title" name="title" value="学校通知" class="form-control form-control-lg mb-3" data-toggle="tooltip" title="颜色代表: 消息的重要性" data-bs-placement="bottom"/>
       <textarea maxlength="500" class="form-control form-control-lg mb-3" name="message" rows="5" placeholder="注意：默认发布为 '一般消息'，但没有内容发不了哦！" ></textarea>
       <div id="myDatePicker"></div>
       <button type="submit" class="btn btn-danger" id="submit">&nbsp;发&nbsp;布&nbsp;! 🚀</button>
@@ -168,7 +152,7 @@
   </div>
 
   <div class="tab-pane fade show active" id="pills-view" role="tabpanel" aria-labelledby="pills-view-tab">
-    <table class="table table-hover">
+    <table class="table table-bordered table-hover">
     <thead>
       <tr class="text-warning bg-dark">
         <th scope="col">通知标题</th>
@@ -181,19 +165,19 @@
       {%for post in data%}
       <tr>
 {% if post.type == "1" %}
-        <td class="text-primary"><b>
+        <td class="table-warning border-warning">
 {% elif post.type == "2" %}
-        <td class="text-danger"><b>
+        <td class="table-danger border-danger">
 {% else %}
-        <td>
+        <td class="table-success border-primary">
 {% endif %}
         {{post.title}}
         </td>
         <td>
-      <span id="msg" class="d-inline-block text-truncate" style="max-width:400px;" data-toggle="tooltip" title={{post.message}}> {{post.message}} </span>
-	  </td>
-          <td>{{post.views}}</td>
-          <td>{{post.createdAt}}</td>
+	<span id="msg" class="d-inline-block text-truncate" style="max-width:800px;" data-toggle="tooltip" title={{post.message}}> {{post.message}} </span>
+	</td>
+	<td class="text-left">{{post.views}}</td>
+	<td>{{post.createdAt}}</td>
       </tr> 
       {%endfor%}
     </tbody>
@@ -202,8 +186,16 @@
 </div>
 <script>
   let modal = new bootstrap.Modal(document.getElementById('gfg'));
-  function showModal() {
-    modal.show();
+  function validateForm() {
+    var x = document.forms["myForm"]["message"].value;
+    if ( x == null || x == "" ) {
+      alert("没有啥事就别发了。");
+      return false;
+    }
+    else{
+      //$('#popup').click();
+      modal.show();
+    }
   }
 </script>
 </body>

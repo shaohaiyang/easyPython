@@ -1,17 +1,19 @@
-import sys, os, getpass
 import ctypes
 import pyttsx3
 from random import randint, choice
 from paho.mqtt import client as mqtt_client
 from threading import Thread
 from time import sleep
+from getpass import getuser
+from sys import argv
+from os import path, popen, getcwd
  
-DEBUG = True
+DEBUG = False
 # mqtt server address and listen port
 server = "www.qq.com"
 port = 1883
 # mqtt receive channel topic name
-topic = "school/hzz"
+topic = "school/hzc/#"
 # mqtt identity username/password verification
 username = "hzc"
 password = "hzc87612487"
@@ -37,7 +39,7 @@ except Exception as e:
 
 # get disk serial number to combine mqtt client_id
 try:
-    disk_info = os.popen('vol '+'c:', 'r').read().split()
+    disk_info = popen('vol '+'c:', 'r').read().split()
     disk_serial = disk_info[len(disk_info)-1:][0]
     client_id = f'hzz-{computename}-{disk_serial}'
 except Exception as e:
@@ -51,7 +53,7 @@ def count_size(len, width, height):
         col = width // pix
         row = height // pix
         if row < 4 or int(col * row) <= len:
-            return (size - 2) if size < 300 else 300
+            return (size - 4) if size < 300 else 300
             break
         else:
             size += 2 
@@ -168,16 +170,14 @@ def tt_message(title, message, font_size):
 # 主程序，与mqtt通讯 
 def connect_mqtt(topic):
     def on_connect(client, userdata, flags, rc):
-        if rc == 0:
-            while True:
-                try:
-                    client.subscribe(topic, qos=1)
-                    if DEBUG: print(f"[{client_id}] Connected to MQTT Server! SessionID: {flags['session present']}")
-                    break
-                except Exception as e:
-                    sleep(3)
-        else:
-            client.reconnect()
+        while True:
+            if rc == 0:
+                client.subscribe(topic, qos=1)
+                if DEBUG: print(f"[{client_id}] Connected to MQTT Server! SessionID: {flags['session present']}")
+                break
+            else:
+                sleep(3)
+                client.reconnect()
  
     def on_message(client, userdata, msg):
         recv_msg = msg.payload.decode().split('^')
@@ -207,37 +207,36 @@ def connect_mqtt(topic):
  
     # Set Connecting Client ID 设置clean_session为False表示要建立一个持久性会话
     client = mqtt_client.Client(client_id,clean_session=False)
-    client.username_pw_set(username, password)
     client.on_connect = on_connect
-    client.connect(server, port, keepalive=300)
     client.on_message = on_message
     return client
  
 # 加入自动启动菜单
 def add_to_startup():
-    file_name =  os.path.basename(sys.argv[0])
-    _, file_extension = os.path.splitext(file_name)
+    file_name =  path.basename(argv[0])
+    _, file_extension = path.splitext(file_name)
  
     if  file_extension.lower() == ".exe":
         try:
-            USER_NAME = getpass.getuser()
+            USER_NAME = getuser()
         except Exception as e:
             USER_NAME = "Administrator"
         bat_path = r"C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" % USER_NAME
-        bat_file = os.path.join(bat_path, "popnotify.bat")
+        bat_file = path.join(bat_path, "popnotify.bat")
         with open(bat_file, "w+") as _file:
-            _file.write(r'start "" "%s"' % os.path.join(os.getcwd(), file_name))
+            _file.write(r'start "" "%s"' % path.join(getcwd(), file_name))
                 
  
 def run():
-    while True:
-        try:
-            client = connect_mqtt(topic)
-            break
-        except Exception as e:
-            sleep(5)
-    client.loop_forever()
- 
+    try:
+        client = connect_mqtt(topic)
+        client.username_pw_set(username, password)
+        client.connect(server, port, keepalive=300)
+    except Exception as e:
+        sleep(3)
+    else:
+        client.loop_forever()
+
  
 if __name__ == '__main__':
     add_to_startup()
