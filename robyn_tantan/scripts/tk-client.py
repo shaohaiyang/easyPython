@@ -1,4 +1,4 @@
-import ctypes
+#import ctypes
 import pyttsx3
 from random import randint, choice
 from paho.mqtt import client as mqtt_client
@@ -6,7 +6,9 @@ from threading import Thread
 from time import sleep
 from getpass import getuser
 from sys import argv
-from os import path, popen, getcwd
+from os import path, popen, getcwd, getenv, environ
+from platform import node
+from socket import gethostname
  
 DEBUG = False
 # mqtt server address and listen port
@@ -17,6 +19,7 @@ topic = "school/hzc/#"
 # mqtt identity username/password verification
 username = "hzc"
 password = "hzc87612487"
+
 colors = [ "#C7EDCC", "#FFFFFF", "#FAF9DE", "#FFF2E2", "#FDE6E0", "#DCE2F1", "#E9EBFE", "#EAEAEF", "#E3EDCD", "#CCE8CF" ]
 # icons
 WS_TOPMOST = 0x1000
@@ -26,14 +29,15 @@ ICON_STOP = 0x10
  
  # get windows machine name
 try:
-    kernel32 = ctypes.WinDLL("kernel32")
-    kernel32.GetComputerNameW.restype = ctypes.c_bool
-    kernel32.GetComputerNameW.argtypes = (ctypes.c_wchar_p,ctypes.POINTER(ctypes.c_uint32))
-    lenComputerName = ctypes.c_uint32()
-    kernel32.GetComputerNameW(None, lenComputerName)
-    computerName = ctypes.create_unicode_buffer(lenComputerName.value)
-    kernel32.GetComputerNameW(computerName, lenComputerName)
-    computename = computerName.value
+    n1 = node()
+    n2 = gethostname()
+    n3 = environ["COMPUTERNAME"]
+    if n1 == n2 or n1 == n3:
+        computename = n1
+    elif n2 == n3:
+        computename = n2
+    else:
+        computename = getenv("COMPUTERNAME") 
 except Exception as e:
     computename = "Unknown-PC"
 
@@ -82,6 +86,7 @@ def say_message(message):
 def tk_message(title,message,font_size, type=2):
     import tkinter as tk
     from tkinter.font import Font
+    from tkinter import messagebox
     #from tkhtmlview import HTMLText, RenderHTML
  
     def quit(dummy=None):
@@ -105,34 +110,41 @@ def tk_message(title,message,font_size, type=2):
         root.attributes('-fullscreen', True)
         if not font_size:
             font_size = count_size(word_count, screen_w, screen_h)
-    else:
+    elif type == 1:
         left = screen_w // 4
         right = screen_h // 4 
         screen_size = f"{screen_w // 2 }x{screen_h // 2 }+{left}+{right}"
         root.geometry(screen_size)
         if not font_size:
             font_size = count_size(word_count, screen_w // 2, screen_h // 2)
-
+    else:
+        root.withdraw() # 实现主窗口隐藏 root.geometry('0x0+999999+0')
+        textto = tk.Toplevel(root)
+        textto.withdraw()
+        res = messagebox.showinfo(title, message, parent=textto)
+        root.destroy()
+        
+    if type != 0:
+        font_type = Font(family="楷体", size=font_size)
+        root.attributes('-topmost', True) 
+        # bind shortcut key
+        root.bind('<Escape>', toggle_fs)
+        root.bind('<BackSpace>', quit)
+ 
+        #with open("message.html","w+") as f:
+        #    f.write(message)
+        #html_label = HTMLText(root, html=RenderHTML('message.html'))
+        #html_label.pack(fill="both", expand=True)
+        #html_label.fit_height()
+ 
+        text = tk.Text(root, undo=True, autoseparators=False, wrap=tk.WORD)
+        text.insert(tk.INSERT, message)
+        text.configure(font=font_type, background=choice(colors))
+        text.configure(state='disabled')
+        text.pack(expand=True, fill=tk.BOTH)
+        # 窗口聚焦点
+        root.focus_force()
     if DEBUG: print(screen_w, screen_h, word_count, font_size )
-    font_type = Font(family="楷体", size=font_size)
-    root.attributes('-topmost', True) 
-    # bind shortcut key
-    root.bind('<Escape>', toggle_fs)
-    root.bind('<BackSpace>', quit)
- 
-    #with open("message.html","w+") as f:
-    #    f.write(message)
-    #html_label = HTMLText(root, html=RenderHTML('message.html'))
-    #html_label.pack(fill="both", expand=True)
-    #html_label.fit_height()
- 
-    text = tk.Text(root, undo=True, autoseparators=False, wrap=tk.WORD)
-    text.insert(tk.INSERT, message)
-    text.configure(font=font_type, background=choice(colors))
-    text.configure(state='disabled')
-    text.pack(expand=True, fill=tk.BOTH)
-    # 窗口聚焦点
-    root.focus_force()
     root.mainloop()
  
 # 使用turtle模块动画出消息，太幼稚了，不用了
@@ -194,16 +206,11 @@ def connect_mqtt(topic):
             t.start()
  
         if emegy == 0:
-            try:
-                user32 = ctypes.WinDLL("user32")
-                messagebox = lambda info, title="重要消息", style=0: user32.MessageBoxW(0, str(info), str(title), style)
-                messagebox(body_Str,title, ICON_INFO | WS_TOPMOST)
-            except Exception as e:
-                pass
-        elif emegy == 2:
-            tk_message(title, body_Str, size, type=2)
-        else:
+            tk_message(title, body_Str, size, type=0)
+        elif emegy == 1:
             tk_message(title, body_Str, size, type=1)
+        else:
+            tk_message(title, body_Str, size, type=2)
  
     # Set Connecting Client ID 设置clean_session为False表示要建立一个持久性会话
     client = mqtt_client.Client(client_id,clean_session=False)
