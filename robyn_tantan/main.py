@@ -39,7 +39,7 @@ def connect_mqtt(topic, message):
   def on_connect(client, userdata, flags, rc):
     if rc == 0:
       if DEBUG: print(f"{rc} -> Send to topic: {topic}")
-      client.publish(topic, message, qos=2, retain=True)
+      client.publish(topic, message, qos=1, retain=True)
     else:
       if DEBUG: print(f"{rc} -> Failed to Send to topic: {topic}")
       pass
@@ -79,8 +79,10 @@ async def addpost(req: Request):
   message = "".join([s for s in message.strip().splitlines(True) if s.strip()])
   msg_type = data.get("msg_type",['0'])[0]
   speak = data.get("msg_speak",['off'])[0]
+  checkin = data.get("checkin",['off'])[0]
   title = data.get("title",["重要通知"])[0]
   speak = 1 if speak == "on" else 0
+  checkin = 1 if checkin == "on" else 0
   author = "shan"
   crond_send = False
 
@@ -89,18 +91,17 @@ async def addpost(req: Request):
   createdAt = created_timezone.strftime("%c")
   created_timestamp = int(mktime(created_timezone.timetuple()))
 
-  msg = f"{int(msg_type)}^{speak}^^{title}^{message}"
-  if DEBUG:
-    print(msg)
-  else:
-    with open(f"/tmp/mqtt-hzz-msg-{created_timestamp}", "w+") as f:
-      f.write(msg)
+  msg = f"{int(msg_type)}^{speak}^{checkin}^{title}^{message}"
+  if DEBUG: print(msg)
 
   if cron_time:
     cron_timestamp = int(mktime( strptime(cron_time, "%Y/%m/%d %H:%M:%S"))) 
-    if cron_timestamp - created_timestamp > 60:
+    if cron_timestamp - created_timestamp > 80:
       if DEBUG: print(f"创建定时发送任务:{createdAt}({created_timestamp}), {cron_time}({cron_timestamp})")
       crond_send = True
+      with open(f"/tmp/mqtt-hzz-msg-{created_timestamp}", "w+") as f:
+        f.write(msg)
+
       with CronTab(user='root') as cron:
         job = cron.new(command=f"/usr/local/sbin/cron_sendmsg.py /tmp/mqtt-hzz-msg-{created_timestamp}", comment=str(cron_timestamp))
         job.setall(datetime_to_cron(cron_time))

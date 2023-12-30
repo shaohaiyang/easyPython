@@ -5,12 +5,12 @@ from paho.mqtt import client as mqtt_client
 from threading import Thread
 from time import sleep
 from getpass import getuser
-from sys import argv
+from sys import argv, exit
 from os import path, popen, getcwd, getenv, environ
 from platform import node
 from socket import gethostname
  
-DEBUG = False
+DEBUG = True
 # mqtt server address and listen port
 server = "www.qq.com"
 port = 1883
@@ -57,10 +57,10 @@ def count_size(len, width, height):
         col = width // pix
         row = height // pix
         if row < 4 or int(col * row) <= len:
-            return (size - 4) if size < 300 else 300
+            return (size - 10) if size < 300 else 250
             break
         else:
-            size += 2 
+            size += 4 
 
 # 护眼色的十六进制转RGB
 def hex_to_rgb(value):
@@ -83,7 +83,7 @@ def say_message(message):
         pass
  
 # 使用tkinter显示消息
-def tk_message(title,message,font_size, type=2):
+def tk_message(title,message,checkin=0, type=2):
     import tkinter as tk
     from tkinter.font import Font
     from tkinter import messagebox
@@ -104,25 +104,25 @@ def tk_message(title,message,font_size, type=2):
     screen_w = root.winfo_screenwidth()
     screen_h = root.winfo_screenheight()
     word_count = len(message)
+    font_size = 20
     # 区分类型，2为全屏显示，1为屏幕一半居中显示
     if type == 2:
         screen_size = f"{screen_w}x{screen_h}+0+0"
         root.attributes('-fullscreen', True)
-        if not font_size:
-            font_size = count_size(word_count, screen_w, screen_h)
+        font_size = count_size(word_count, screen_w, screen_h)
     elif type == 1:
         left = screen_w // 4
         right = screen_h // 4 
         screen_size = f"{screen_w // 2 }x{screen_h // 2 }+{left}+{right}"
         root.geometry(screen_size)
-        if not font_size:
-            font_size = count_size(word_count, screen_w // 2, screen_h // 2)
+        font_size = count_size(word_count, screen_w // 2, screen_h // 2)
     else:
         root.withdraw() # 实现主窗口隐藏 root.geometry('0x0+999999+0')
         textto = tk.Toplevel(root)
         textto.withdraw()
         res = messagebox.showinfo(title, message, parent=textto)
         root.destroy()
+    if DEBUG: print(screen_w, screen_h, word_count, font_size, checkin )
         
     if type != 0:
         font_type = Font(family="楷体", size=font_size)
@@ -144,40 +144,7 @@ def tk_message(title,message,font_size, type=2):
         text.pack(expand=True, fill=tk.BOTH)
         # 窗口聚焦点
         root.focus_force()
-    if DEBUG: print(screen_w, screen_h, word_count, font_size )
     root.mainloop()
- 
-# 使用turtle模块动画出消息，太幼稚了，不用了
-def tt_message(title, message, font_size):
-    import turtle as tt
-    w, h = 1000, 800
-    win = tt.Screen()
-    win.colormode(255)
-    win.title(title)
-    win.setup(w,h)
-    bgcolor = hex_to_rgb(choice(colors))
-    win.bgcolor(bgcolor[0], bgcolor[1], bgcolor[2])
-    if not font_size:
-        font_size = "35"
- 
-    pen = tt.Pen()
-    pen.hideturtle()
-    pen.up()
-    pen.speed(8)
- 
-    x, y = -w/2 + 60, h/2 - 50
-    i, l = 0, 0
-    for word in message:
-        i += 1
-        pen.goto(x,y)
-        pen.write(word, font=("楷体", int(font_size)))
-        x += 50
-        num = 18 if l == 0 else 20
-        if i == num:
-            i = 1
-            x, y, l = -w/2 + 10, y - 60, l + 1
- 
-    win.exitonclick()
  
 # 主程序，与mqtt通讯 
 def connect_mqtt(topic):
@@ -195,22 +162,22 @@ def connect_mqtt(topic):
         recv_msg = msg.payload.decode().split('^')
         emegy = int(recv_msg[0])
         speak = int(recv_msg[1])
-        size = str(recv_msg[2])
+        checkin = int(recv_msg[2])
         title = str(recv_msg[3])
         body_Str = str(recv_msg[4])
  
-        if DEBUG: print(f"模式：{emegy} | 语音：{speak} | 标题：{title} | 消息: {body_Str}, 字体大小: {size}") 
+        if DEBUG: print(f"模式：{emegy} | 语音：{speak} | 标题：{title} | 消息: {body_Str}, 签到: {checkin}") 
  
         if speak == 1:
             t = Thread(target=say_message, args=(body_Str,))
             t.start()
  
         if emegy == 0:
-            tk_message(title, body_Str, size, type=0)
+            tk_message(title, body_Str, checkin, type=0)
         elif emegy == 1:
-            tk_message(title, body_Str, size, type=1)
+            tk_message(title, body_Str, checkin, type=1)
         else:
-            tk_message(title, body_Str, size, type=2)
+            tk_message(title, body_Str, checkin, type=2)
  
     # Set Connecting Client ID 设置clean_session为False表示要建立一个持久性会话
     client = mqtt_client.Client(client_id,clean_session=False)
@@ -224,16 +191,21 @@ def add_to_startup():
     _, file_extension = path.splitext(file_name)
  
     if  file_extension.lower() == ".exe":
+        import portalocker
         try:
             USER_NAME = getuser()
         except Exception as e:
             USER_NAME = "Administrator"
         bat_path = r"C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" % USER_NAME
         bat_file = path.join(bat_path, "popnotify.bat")
-        with open(bat_file, "w+") as _file:
-            _file.write(r'start "" "%s"' % path.join(getcwd(), file_name))
-                
- 
+        lockfile = path.join(bat_path, "tantan.lock")
+
+        try:
+            with open(bat_file, 'x') as lockfile:
+                lockfile.write(r'start "" "%s"' % path.join(getcwd(), file_name))
+        except Exception as e:
+            exit(-1)
+
 def run():
     try:
         client = connect_mqtt(topic)

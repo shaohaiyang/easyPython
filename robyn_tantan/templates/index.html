@@ -47,7 +47,7 @@
 	var date2 = Math.floor(new Date(timeValue).getTime() / 1000);
 
 	//alert(timeValue +  "定时：" + date2 + " 当前：" + date1);
-	if ( date2 < date1 + 80 ){
+	if ( date2 < date1 + 88 ){
 	  alert("你的定时时间太短了! 至少延时三分钟以上吧？ ");
 	  return false;
 	}
@@ -144,8 +144,8 @@
 
       <input type="hidden" id="send_time" value="" name="send_time"/>
       <input type="hidden" id="msg_type" value="" name="msg_type"/>
-      <input type="text" id="title" name="title" value="学校通知" class="form-control form-control-lg mb-3" data-toggle="tooltip" title="颜色代表: 消息的重要性" data-bs-placement="bottom"/>
-      <textarea maxlength="500" class="form-control form-control-lg mb-3" name="message" rows="5" placeholder="注意：默认发布为 '一般消息'，但没有内容发不了哦！" ></textarea>
+      <input type="text" maxlength="30" id="title" name="title" value="学校通知" class="form-control form-control-lg mb-3" data-toggle="tooltip" title="颜色: 消息的重要性，限30字" data-bs-placement="bottom"/>
+      <textarea maxlength="350" class="form-control form-control-lg mb-3" name="message" rows="5" placeholder="注意：默认发布为 '一般消息'，但没有内容发不了哦！字数限制300" ></textarea>
       <div id="myDatePicker"></div>
       <button type="submit" class="btn btn-danger" id="submit">&nbsp;发&nbsp;布&nbsp;! 🚀</button>
       </form>
