@@ -73,7 +73,7 @@ async def addpost(req: Request):
   data = parse_qs(req.body) # (bytearray(req.get("body")).decode("utf-8")) unused
   if DEBUG: print("post <", data)
   message = data.get("message",[None])[0]
-  if not message:
+  if not message or len(message) < 6:
     return
 
   message = "".join([s for s in message.strip().splitlines(True) if s.strip()])
@@ -91,23 +91,12 @@ async def addpost(req: Request):
   createdAt = created_timezone.strftime("%c")
   created_timestamp = int(mktime(created_timezone.timetuple()))
 
-  msg = f"{int(msg_type)}^{speak}^{checkin}^{title}^{message}"
-  if DEBUG: print(msg)
-
-  if cron_time:
-    cron_timestamp = int(mktime( strptime(cron_time, "%Y/%m/%d %H:%M:%S"))) 
-    if cron_timestamp - created_timestamp > 80:
-      if DEBUG: print(f"创建定时发送任务:{createdAt}({created_timestamp}), {cron_time}({cron_timestamp})")
-      crond_send = True
-      with open(f"/tmp/mqtt-hzz-msg-{created_timestamp}", "w+") as f:
-        f.write(msg)
-
-      with CronTab(user='root') as cron:
-        job = cron.new(command=f"/usr/local/sbin/cron_sendmsg.py /tmp/mqtt-hzz-msg-{created_timestamp}", comment=str(cron_timestamp))
-        job.setall(datetime_to_cron(cron_time))
-
-# 如果不是调试模式，要记录数据库并发送消息
-  if not DEBUG:
+  # 如果不是调试模式，要记录数据库并发送消息
+  if DEBUG:
+    msg = f"{int(msg_type)}^{speak}^{checkin}^{title}^{message}^0"
+    print(msg)
+    response = "<h2>调试: 测试发布成功！</h2>"
+  else:
     user = db.user.find_first(where={'name': author})
     if not user:
       user = db.user.create(
@@ -124,6 +113,19 @@ async def addpost(req: Request):
         }
       )
 
+    msg = f"{int(msg_type)}^{speak}^{checkin}^{title}^{message}^{post.id}"
+    if cron_time:
+      cron_timestamp = int(mktime( strptime(cron_time, "%Y/%m/%d %H:%M:%S")))
+      if cron_timestamp - created_timestamp > 80:
+        if DEBUG: print(f"创建定时发送任务:{createdAt}({created_timestamp}), {cron_time}({cron_timestamp})")
+        crond_send = True
+        with open(f"/tmp/mqtt-hzz-msg-{created_timestamp}", "w+") as f:
+          f.write(msg)
+        with CronTab(user='root') as cron:
+          job = cron.new(command=f"/usr/local/sbin/cron_sendmsg.py /tmp/mqtt-hzz-msg-{created_timestamp}", comment=str(cron_timestamp))
+          job.setall(datetime_to_cron(cron_time))
+
+
     # 如果不是定时发送，则直接发送
     if not crond_send:
       client = connect_mqtt(topic, msg)
@@ -138,8 +140,6 @@ async def addpost(req: Request):
 	</tr>"""
     else:
       response = "<h2>定时任务发布成功！</h2>"
-  else:
-    response = "<h2>调试: 测试发布成功！</h2>"
   return response
 
 ###########################################
