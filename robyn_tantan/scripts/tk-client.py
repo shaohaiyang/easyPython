@@ -3,12 +3,13 @@ import pyttsx3
 from random import randint, choice
 from paho.mqtt import client as mqtt_client
 from threading import Thread
-from time import sleep
+from time import sleep, time
 from getpass import getuser
 from sys import argv, exit
 from os import path, popen, getcwd, getenv, environ
 from platform import node
 from socket import gethostname
+from psutil import process_iter
  
 DEBUG = True
 # mqtt server address and listen port
@@ -185,26 +186,29 @@ def connect_mqtt(topic):
     client.on_message = on_message
     return client
  
+i = 0
 # 加入自动启动菜单
 def add_to_startup():
+    global i
     file_name =  path.basename(argv[0])
     _, file_extension = path.splitext(file_name)
  
     if  file_extension.lower() == ".exe":
-        import portalocker
         try:
             USER_NAME = getuser()
         except Exception as e:
             USER_NAME = "Administrator"
         bat_path = r"C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" % USER_NAME
         bat_file = path.join(bat_path, "popnotify.bat")
-        lockfile = path.join(bat_path, "tantan.lock")
 
-        try:
-            with open(bat_file, 'x') as lockfile:
-                lockfile.write(r'start "" "%s"' % path.join(getcwd(), file_name))
-        except Exception as e:
-            exit(-1)
+# 判断是否有进程存在，存在就不能重复运行
+        for proc in process_iter():
+            if proc.name() == "点点通.exe":
+                i += 1
+        if i >= 3: exit(-1)
+
+        with open(bat_file, 'w') as _file:
+            _file.write(r'start "" "%s"' % path.join(getcwd(), file_name))
 
 def run():
     try:
@@ -216,7 +220,6 @@ def run():
     else:
         client.loop_forever()
 
- 
 if __name__ == '__main__':
     add_to_startup()
     run()
