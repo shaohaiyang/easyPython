@@ -1,5 +1,5 @@
 from robyn import Robyn, serve_file, serve_html, jsonify, WebSocket
-from robyn.robyn import Response, Request
+from robyn.robyn import Response, Request, Headers, Url, QueryParams
 from robyn.templating import JinjaTemplate
 from random import randint
 from urllib.parse import parse_qs
@@ -12,7 +12,7 @@ from crontab import CronTab
 from time import mktime, strftime, strptime
 from re import split
 
-DEBUG = False
+DEBUG = True
 db = Prisma(auto_register=True)
 db.connect()
 
@@ -52,7 +52,7 @@ def connect_mqtt(topic, message):
   return client
 
 @app.get("/")
-async def head(req):
+async def head():
   try:
     posts = db.post.find_many(take=10, order={"id":'desc'}, include={"author": True} )
     context = {
@@ -69,9 +69,10 @@ async def head(req):
 
 
 @app.post("/submit")
-async def addpost(req: Request):
-  data = parse_qs(req.body) # (bytearray(req.get("body")).decode("utf-8")) unused
-  if DEBUG: print("post <", data)
+async def addpost(request: Request):
+  data = parse_qs(request.body)
+  if DEBUG: print(f"post < {data}")
+
   message = data.get("message",[None])[0]
   if not message or len(message) < 6:
     return
@@ -121,6 +122,7 @@ async def addpost(req: Request):
         crond_send = True
         with open(f"/tmp/mqtt-hzz-msg-{created_timestamp}", "w+") as f:
           f.write(msg)
+
         with CronTab(user='root') as cron:
           job = cron.new(command=f"/usr/local/sbin/cron_sendmsg.py /tmp/mqtt-hzz-msg-{created_timestamp}", comment=str(cron_timestamp))
           job.setall(datetime_to_cron(cron_time))
@@ -143,6 +145,15 @@ async def addpost(req: Request):
   return response
 
 ###########################################
-if __name__ == "__main__":
-  app.add_directory(route="/static", directory_path=static_dir, index_file="index.html")
+def main():
+  app.set_response_header("server", "robyn")
+  app.add_directory(
+      route="/static",
+      directory_path=static_dir,
+      index_file="index.html",
+    )
   app.start(port=5555, host="0.0.0.0") # host defaults to 127.0.0.1
+
+
+if __name__ == "__main__":
+  main()
