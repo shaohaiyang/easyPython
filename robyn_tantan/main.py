@@ -65,8 +65,7 @@ async def head():
     response = jinja_template.render_template(template_name="index.html", **context)
     return response
   except Exception as e:
-    return
-
+    pass
 
 @app.post("/submit")
 async def addpost(request: Request):
@@ -74,75 +73,70 @@ async def addpost(request: Request):
   if DEBUG: print(f"post < {data}")
 
   message = data.get("message",[None])[0]
-  if not message or len(message) < 6:
-    return
+  if message and len(message) > 6:
+    message = "".join([s for s in message.strip().splitlines(True) if s.strip()])
+    msg_type = data.get("msg_type",['0'])[0]
+    speak = data.get("msg_speak",['off'])[0]
+    checkin = data.get("checkin",['off'])[0]
+    title = data.get("title",["重要通知"])[0]
+    speak = 1 if speak == "on" else 0
+    checkin = 1 if checkin == "on" else 0
+    author = "shan"
+    crond_send = False
 
-  message = "".join([s for s in message.strip().splitlines(True) if s.strip()])
-  msg_type = data.get("msg_type",['0'])[0]
-  speak = data.get("msg_speak",['off'])[0]
-  checkin = data.get("checkin",['off'])[0]
-  title = data.get("title",["重要通知"])[0]
-  speak = 1 if speak == "on" else 0
-  checkin = 1 if checkin == "on" else 0
-  author = "shan"
-  crond_send = False
-
-  cron_time = data.get("send_time",[None])[0]
-  created_timezone = datetime.now().astimezone(timezone(zone))
-  createdAt = created_timezone.strftime("%c")
-  created_timestamp = int(mktime(created_timezone.timetuple()))
-
-  # 如果不是调试模式，要记录数据库并发送消息
-  if DEBUG:
-    msg = f"{int(msg_type)}^{speak}^{checkin}^{title}^{message}^0"
-    print(msg)
-    response = "<h2>调试: 测试发布成功！</h2>"
-  else:
-    user = db.user.find_first(where={'name': author})
-    if not user:
-      user = db.user.create(
-        data={  "name": author, }
-      )
-
-    post = db.post.create(
-      data={
-        'title': title,
-        'type': msg_type,
-        'message': message,
-        'authorId': user.id,
-        'createdAt': createdAt,
-        }
-      )
-
-    msg = f"{int(msg_type)}^{speak}^{checkin}^{title}^{message}^{post.id}"
+    cron_time = data.get("send_time",[None])[0]
+    created_timezone = datetime.now().astimezone(timezone(zone))
+    createdAt = created_timezone.strftime("%c")
+    created_timestamp = int(mktime(created_timezone.timetuple()))
     if cron_time:
       cron_timestamp = int(mktime( strptime(cron_time, "%Y/%m/%d %H:%M:%S")))
       if cron_timestamp - created_timestamp > 80:
         if DEBUG: print(f"创建定时发送任务:{createdAt}({created_timestamp}), {cron_time}({cron_timestamp})")
         crond_send = True
+        checkin += 2
+
+    # 如果不是调试模式，要记录数据库并发送消息
+    if DEBUG:
+      msg = f"{int(msg_type)}^{speak}^{checkin}^{title}^{message}^0"
+      print(msg)
+      response = "<h2>调试: 测试发布成功！</h2>"
+    else:
+      user = db.user.find_first(where={'name': author})
+      if not user:
+        user = db.user.create(
+          data={  "name": author, }
+        )
+
+      post = db.post.create(
+        data={
+          'title': title,
+          'type': msg_type,
+          'message': message,
+          'authorId': user.id,
+          'createdAt': createdAt,
+          }
+        )
+
+      msg = f"{int(msg_type)}^{speak}^{checkin}^{title}^{message}^{post.id}"
+      # 如果不是定时发送，则直接发送
+      if not crond_send:
+        client = connect_mqtt(topic, msg)
+        client.loop_start()
+        client.loop_stop()
+        response = f"""<tr>
+          <td>{post.title}</td>
+          <td>{post.message}</td>
+          <td>{post.views}</td>
+          <td>{createdAt}</td>
+          </tr>"""
+      else:
         with open(f"/tmp/mqtt-hzz-msg-{created_timestamp}", "w+") as f:
           f.write(msg)
-
         with CronTab(user='root') as cron:
           job = cron.new(command=f"/usr/local/sbin/cron_sendmsg.py /tmp/mqtt-hzz-msg-{created_timestamp}", comment=str(cron_timestamp))
           job.setall(datetime_to_cron(cron_time))
-
-
-    # 如果不是定时发送，则直接发送
-    if not crond_send:
-      client = connect_mqtt(topic, msg)
-      client.loop_start()
-      client.loop_stop()
-
-      response = f"""<tr>
-	<td>{post.title}</td>
-	<td>{post.message}</td>
-	<td>{post.views}</td>
-	<td>{createdAt}</td>
-	</tr>"""
-    else:
-      response = "<h2>定时任务发布成功！</h2>"
-  return response
+        response = "<h2>定时任务发布成功！</h2>"
+    return response
 
 ###########################################
 def main():
