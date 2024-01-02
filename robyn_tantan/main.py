@@ -101,7 +101,7 @@ async def addpost(request: Request):
       created_timestamp = int(mktime(created_timezone.timetuple()))
       cron_time = data.get("send_time",['1979/06/18 21:45:18'])[0]
       cron_timestamp = int(mktime( strptime( cron_time, "%Y/%m/%d %H:%M:%S" )))
-      data={'title':title, 'type':msg_type, 'message':message, 'authorId':user.id, 'createdAt':createdAt, 'updatedAt':''}
+      data={'title':title, 'type':msg_type, 'message':message, 'authorId':user.id, 'createdAt':createdAt}
 
       if cron_timestamp - created_timestamp > 80:
         if DEBUG: print(f"创建定时发送任务: {createdAt} ({cron_time})")

@@ -10,6 +10,7 @@ from os import path, popen, getcwd, getenv, environ
 from platform import node
 from socket import gethostname
 from psutil import process_iter
+from datetime import datetime
  
 DEBUG = True
 # mqtt server address and listen port
@@ -166,13 +167,26 @@ def connect_mqtt(topic):
         checkin = int(recv_msg[2])
         title = str(recv_msg[3])
         body_Str = str(recv_msg[4])
- 
-        if DEBUG: print(f"模式：{emegy} | 语音：{speak} | 标题：{title} | 消息: {body_Str}, 签到: {checkin}") 
+        try:
+            msg_id = int(recv_msg[5])
+        except Exception as e:
+            msg_id = 0
+        if DEBUG: print(f"模式：{emegy} | 语音：{speak} | 标题ID:{msg_id}：{title} | 消息: {body_Str}, 签到: {checkin}")
  
         if speak == 1:
             t = Thread(target=say_message, args=(body_Str,))
             t.start()
  
+        save_path = path.expanduser("~\\Desktop")
+        currentDate = datetime.now().strftime("%Y-%m-%d")
+        save_file = f"学校通知-{currentDate}.txt"
+        try:
+            fp = open(path.join(save_path, save_file), encoding="utf-8", mode="a+")
+        except Exception as e:
+            fp = open(path.join(getcwd(), save_file), encoding="utf-8", mode="a+")
+        fp.write(f"----------------- { title } -----------------\n{body_Str}\n\n")
+        fp.close()
+
         if emegy == 0:
             tk_message(title, body_Str, checkin, type=0)
         elif emegy == 1:
@@ -200,15 +214,15 @@ def add_to_startup():
             USER_NAME = "Administrator"
         bat_path = r"C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" % USER_NAME
         bat_file = path.join(bat_path, "popnotify.bat")
+        if not path.exists(bat_file):
+            with open(bat_file, 'w') as _file:
+                _file.write(r'start "" "%s"' % path.join(getcwd(), file_name))
 
 # 判断是否有进程存在，存在就不能重复运行
         for proc in process_iter():
             if proc.name() == "点点通.exe":
                 i += 1
         if i >= 3: exit(-1)
-
-        with open(bat_file, 'w') as _file:
-            _file.write(r'start "" "%s"' % path.join(getcwd(), file_name))
 
 def run():
     try:

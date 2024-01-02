@@ -178,7 +178,7 @@
 	</td>
 	<td class="text-left">{{post.views}}</td>
 	<td>
-{% if post.updatedAt != "" %}
+{% if post.updatedAt %}
 	<span class="text-primary" data-toggle="tooltip" title="定时发送: {{post.updatedAt}}"> {{post.createdAt}} </span>
 {% else %}
 	{{post.createdAt}}
