@@ -23,6 +23,7 @@ model Post {
   message   String
   views     Int      @default(0)
   createdAt String
+  updatedAt String
   authorId  Int
   author    User     @relation(fields: [authorId], references: [id])
 }

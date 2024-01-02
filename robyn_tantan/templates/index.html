@@ -127,7 +127,7 @@
 
 <div class="tab-content" id="pills-tabContent">
   <div class="tab-pane fade show " id="pills-new" role="tabpanel" aria-labelledby="pills-new-tab">
-      <form name="myForm" class="mb-3" onsubmit="return validateForm()" hx-post="/submit" hx-swap="beforebegin" hx-target="#new-msg">
+      <form id="myForm" class="mb-3" onsubmit="return validateForm()" hx-post="/submit" hx-swap="beforebegin" hx-target="#new-msg">
       <br>
       <div class="form-check form-switch">
       <input class="form-check-input" type="checkbox" id="mySwitch" name="msg_speak">
@@ -174,10 +174,16 @@
         {{post.title}}
         </td>
         <td>
-	<span id="msg" class="d-inline-block text-truncate" style="max-width:800px;" data-toggle="tooltip" title={{post.message}}> {{post.message}} </span>
+	<span id="msg" class="d-inline-block text-truncate" style="max-width:650px;" data-toggle="tooltip" title={{post.message}}> {{post.message}} </span>
 	</td>
 	<td class="text-left">{{post.views}}</td>
-	<td>{{post.createdAt}}</td>
+	<td>
+{% if post.updatedAt != "" %}
+	<span class="text-primary" data-toggle="tooltip" title="定时发送: {{post.updatedAt}}"> {{post.createdAt}} </span>
+{% else %}
+	{{post.createdAt}}
+{% endif %}
+	</td>
       </tr> 
       {%endfor%}
     </tbody>

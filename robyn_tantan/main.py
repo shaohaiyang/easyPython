@@ -1,16 +1,16 @@
 from robyn import Robyn, serve_file, serve_html, jsonify, WebSocket
 from robyn.robyn import Response, Request, Headers, Url, QueryParams
 from robyn.templating import JinjaTemplate
-from random import randint
 from urllib.parse import parse_qs
 from prisma import Prisma
 from os import path
-from pytz import timezone
-from datetime import datetime
-from paho.mqtt import client as mqtt_client
-from crontab import CronTab
-from time import mktime, strftime, strptime
 from re import split
+from random import randint
+from pytz import timezone
+from crontab import CronTab
+from datetime import datetime
+from time import mktime, strftime, strptime
+from paho.mqtt import client as mqtt_client
 
 DEBUG = True
 db = Prisma(auto_register=True)
@@ -70,9 +70,9 @@ async def head():
 @app.post("/submit")
 async def addpost(request: Request):
   data = parse_qs(request.body)
-  if DEBUG: print(f"post < {data}")
-
   message = data.get("message",[None])[0]
+  if DEBUG: print(f"post < {data}, message: {message}")
+
   if message and len(message) > 6:
     message = "".join([s for s in message.strip().splitlines(True) if s.strip()])
     msg_type = data.get("msg_type",['0'])[0]
@@ -83,17 +83,6 @@ async def addpost(request: Request):
     checkin = 1 if checkin == "on" else 0
     author = "shan"
     crond_send = False
-
-    cron_time = data.get("send_time",[None])[0]
-    created_timezone = datetime.now().astimezone(timezone(zone))
-    createdAt = created_timezone.strftime("%c")
-    created_timestamp = int(mktime(created_timezone.timetuple()))
-    if cron_time:
-      cron_timestamp = int(mktime( strptime(cron_time, "%Y/%m/%d %H:%M:%S")))
-      if cron_timestamp - created_timestamp > 80:
-        if DEBUG: print(f"创建定时发送任务:{createdAt}({created_timestamp}), {cron_time}({cron_timestamp})")
-        crond_send = True
-        checkin += 2
 
     # 如果不是调试模式，要记录数据库并发送消息
     if DEBUG:
@@ -107,17 +96,21 @@ async def addpost(request: Request):
           data={  "name": author, }
         )
 
-      post = db.post.create(
-        data={
-          'title': title,
-          'type': msg_type,
-          'message': message,
-          'authorId': user.id,
-          'createdAt': createdAt,
-          }
-        )
+      created_timezone = datetime.now().astimezone(timezone(zone))
+      createdAt = created_timezone.strftime("%c")
+      created_timestamp = int(mktime(created_timezone.timetuple()))
+      cron_time = data.get("send_time",['1979/06/18 21:45:18'])[0]
+      cron_timestamp = int(mktime( strptime( cron_time, "%Y/%m/%d %H:%M:%S" )))
+      data={'title':title, 'type':msg_type, 'message':message, 'authorId':user.id, 'createdAt':createdAt, 'updatedAt':''}
 
+      if cron_timestamp - created_timestamp > 80:
+        if DEBUG: print(f"创建定时发送任务: {createdAt} ({cron_time})")
+        crond_send = True
+        data={'title':title, 'type':msg_type, 'message':message, 'authorId':user.id, 'createdAt':createdAt, 'updatedAt':cron_time}
+
+      post = db.post.create(data)
       msg = f"{int(msg_type)}^{speak}^{checkin}^{title}^{message}^{post.id}"
+
       # 如果不是定时发送，则直接发送
       if not crond_send:
         client = connect_mqtt(topic, msg)
@@ -137,6 +130,8 @@ async def addpost(request: Request):
           job.setall(datetime_to_cron(cron_time))
         response = "<h2>定时任务发布成功！</h2>"
     return response
+  else:
+    return ""
 
 ###########################################
 def main():
