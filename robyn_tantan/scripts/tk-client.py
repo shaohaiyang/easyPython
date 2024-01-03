@@ -6,7 +6,7 @@ from threading import Thread
 from time import sleep, time
 from getpass import getuser
 from sys import argv, exit
-from os import path, popen, getcwd, getenv, environ
+from os import path, popen, getcwd, getenv, environ, mkdir
 from platform import node
 from socket import gethostname
 from psutil import process_iter
@@ -22,6 +22,7 @@ topic = "school/hzc/#"
 username = "hzc"
 password = "hzc87612487"
 
+hello = "休息轻松一下吧 :)"
 colors = [ "#C7EDCC", "#FFFFFF", "#FAF9DE", "#FFF2E2", "#FDE6E0", "#DCE2F1", "#E9EBFE", "#EAEAEF", "#E3EDCD", "#CCE8CF" ]
 # icons
 WS_TOPMOST = 0x1000
@@ -177,16 +178,23 @@ def connect_mqtt(topic):
             t = Thread(target=say_message, args=(body_Str,))
             t.start()
  
+        currentDatetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        currentDate, _ = currentDatetime.split()
         save_path = path.expanduser("~\\Desktop")
-        currentDate = datetime.now().strftime("%Y-%m-%d")
-        save_file = f"学校通知-{currentDate}.txt"
+        if path.exists(save_path):
+            save_path = path.join(save_path, "学校通知")
+        else:
+            save_path = path.join(getcwd(), "学校通知")
         try:
-            fp = open(path.join(save_path, save_file), encoding="utf-8", mode="a+")
+            mkdir(save_path)
         except Exception as e:
-            fp = open(path.join(getcwd(), save_file), encoding="utf-8", mode="a+")
-        fp.write(f"----------------- { title } -----------------\n{body_Str}\n\n")
-        fp.close()
+            pass
 
+        save_file = f"学校通知-{currentDate}.txt"
+        with open(path.join(save_path, save_file), encoding="utf-8", mode="a+") as fp:
+            fp.write(f"----------- {currentDatetime} -----------\n标题： {title}\n-----------------------------------------------\n{body_Str}\n\n")
+
+        title = f"{hello:<15}【{title}】{currentDatetime:>30}"
         if emegy == 0:
             tk_message(title, body_Str, checkin, type=0)
         elif emegy == 1:
@@ -194,7 +202,7 @@ def connect_mqtt(topic):
         else:
             tk_message(title, body_Str, checkin, type=2)
  
-    # Set Connecting Client ID 设置clean_session为False表示要建立一个持久性会话
+    # Set Connecting Client ID 设置clean_session为False表示要建立一个持久性会话，这个很重要
     client = mqtt_client.Client(client_id,clean_session=False)
     client.on_connect = on_connect
     client.on_message = on_message
@@ -204,7 +212,7 @@ i = 0
 # 加入自动启动菜单
 def add_to_startup():
     global i
-    file_name =  path.basename(argv[0])
+    file_name =  path.join(getcwd(), path.basename(argv[0]))
     _, file_extension = path.splitext(file_name)
  
     if  file_extension.lower() == ".exe":
@@ -214,9 +222,12 @@ def add_to_startup():
             USER_NAME = "Administrator"
         bat_path = r"C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" % USER_NAME
         bat_file = path.join(bat_path, "popnotify.bat")
-        if not path.exists(bat_file):
-            with open(bat_file, 'w') as _file:
-                _file.write(r'start "" "%s"' % path.join(getcwd(), file_name))
+        try:
+            if path.getsize(file_name) > 8000000:
+                with open(bat_file, 'w') as _file:
+                    _file.write(r'start "" "%s"' % path.join(getcwd(), file_name))
+        except Exception as e:
+            pass
 
 # 判断是否有进程存在，存在就不能重复运行
         for proc in process_iter():
