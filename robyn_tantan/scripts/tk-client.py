@@ -60,7 +60,7 @@ def count_size(len, width, height):
         col = width // pix
         row = height // pix
         if row < 4 or int(col * row) <= len:
-            return (size - 10) if size < 300 else 250
+            return (size - 8) if size < 300 else 250
             break
         else:
             size += 4 
@@ -195,12 +195,9 @@ def connect_mqtt(topic):
             fp.write(f"----------- {currentDatetime} -----------\n标题： {title}\n-----------------------------------------------\n{body_Str}\n\n")
 
         title = f"{hello:<15}【{title}】{currentDatetime:>30}"
-        if emegy == 0:
-            tk_message(title, body_Str, checkin, type=0)
-        elif emegy == 1:
-            tk_message(title, body_Str, checkin, type=1)
-        else:
-            tk_message(title, body_Str, checkin, type=2)
+        tk_message(title, body_Str, checkin, emegy)
+        #t2 = Thread(target=tk_message, args=(title, body_Str, checkin, emegy))
+        #t2.start()
  
     # Set Connecting Client ID 设置clean_session为False表示要建立一个持久性会话，这个很重要
     client = mqtt_client.Client(client_id,clean_session=False)
@@ -225,7 +222,7 @@ def add_to_startup():
         try:
             if path.getsize(file_name) > 8000000:
                 with open(bat_file, 'w') as _file:
-                    _file.write(r'start "" "%s"' % path.join(getcwd(), file_name))
+                    _file.write(r'start "" "%s"' % file_name)
         except Exception as e:
             pass
 
