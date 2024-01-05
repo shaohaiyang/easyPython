@@ -19,7 +19,7 @@ def connect_mqtt(topic):
   def on_connect(client, userdata, flags, rc):
     if rc == 0:
       outopic = f"{topic}"
-      client.publish(outopic, message)
+      client.publish(outopic, message, qos=1, retain=True)
 
   # Set Connecting Client ID 设置clean_session为False表示要建立一个持久性会话
   client = mqtt_client.Client(client_id,clean_session=True)
