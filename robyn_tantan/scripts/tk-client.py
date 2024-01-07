@@ -1,5 +1,4 @@
 #import ctypes
-import pyttsx3
 from random import randint, choice
 from paho.mqtt import client as mqtt_client
 from threading import Thread
@@ -7,7 +6,7 @@ from time import sleep, time
 from getpass import getuser
 from sys import argv, exit
 from os import path, popen, getcwd, getenv, environ, mkdir
-from platform import node
+from platform import node, system
 from socket import gethostname
 from psutil import process_iter
 from datetime import datetime
@@ -45,11 +44,15 @@ except Exception as e:
     computename = "Unknown-PC"
 
 # get disk serial number to combine mqtt client_id
-try:
+if "Darwin" in system():
+    import AVFoundation
+    speaker = AVFoundation.AVSpeechSynthesizer.alloc().init()
+    client_id = f'hzz-{computename}-{randint(0, 1000)}'
+elif "Windows" in system():
     disk_info = popen('vol '+'c:', 'r').read().split()
     disk_serial = disk_info[len(disk_info)-1:][0]
     client_id = f'hzz-{computename}-{disk_serial}'
-except Exception as e:
+else:
     client_id = f'hzz-{computename}-{randint(0, 1000)}'
 
 # 返回屏幕自适应的字体大小
@@ -73,17 +76,30 @@ def hex_to_rgb(value):
  
 # 调用系统语音接口播放消息
 def say_message(message):
-    try:
-        engine = pyttsx3.init()
-        voices = engine.getProperty('voices')
-        # 播放中英文混合文字
-        engine.setProperty('voice', voices[0].id)
-        engine.setProperty('rate', 220)
-        engine.say(message)
-        engine.runAndWait()
-        del engine
-    except Exception as e:
-        pass
+    if "Darwin" in system():
+        try:
+            utterance = AVFoundation.AVSpeechUtterance.speechUtteranceWithString_(message)
+            # Configure the utterance.
+            utterance.setRate_(0.2)
+            utterance.setPitchMultiplier_( 0.8)
+            voice = AVFoundation.AVSpeechSynthesisVoice.voiceWithLanguage_("zh-GB")
+            utterance.setVoice_(voice)
+            speaker.speakUtterance_(utterance)
+        except Exception as e:
+            pass
+    else:
+        try:
+            import pyttsx3
+            engine = pyttsx3.init()
+            voices = engine.getProperty('voices')
+            # 播放中英文混合文字
+            engine.setProperty('voice', voices[0].id)
+            engine.setProperty('rate', 220)
+            engine.say(message)
+            engine.runAndWait()
+            del engine
+        except Exception as e:
+            pass
  
 # 使用tkinter显示消息
 def tk_message(title,message,checkin=0, type=2):
@@ -126,7 +142,7 @@ def tk_message(title,message,checkin=0, type=2):
         res = messagebox.showinfo(title, message, parent=textto)
         root.destroy()
     if DEBUG: print(screen_w, screen_h, word_count, font_size, checkin )
-        
+
     if type != 0:
         font_type = Font(family="楷体", size=font_size)
         root.attributes('-topmost', True) 
@@ -148,7 +164,7 @@ def tk_message(title,message,checkin=0, type=2):
         # 窗口聚焦点
         root.focus_force()
     root.mainloop()
- 
+
 # 主程序，与mqtt通讯 
 def connect_mqtt(topic):
     def on_connect(client, userdata, flags, rc):
@@ -160,7 +176,7 @@ def connect_mqtt(topic):
             else:
                 sleep(3)
                 client.reconnect()
- 
+
     def on_message(client, userdata, msg):
         recv_msg = msg.payload.decode().split('^')
         emegy = int(recv_msg[0])
@@ -173,11 +189,11 @@ def connect_mqtt(topic):
         except Exception as e:
             msg_id = 0
         if DEBUG: print(f"模式：{emegy} | 语音：{speak} | 标题ID:{msg_id}：{title} | 消息: {body_Str}, 签到: {checkin}")
- 
+
         if speak == 1:
             t = Thread(target=say_message, args=(body_Str,))
             t.start()
- 
+
         currentDatetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         currentDate, _ = currentDatetime.split()
         save_path = path.expanduser("~\\Desktop")
@@ -204,7 +220,7 @@ def connect_mqtt(topic):
     client.on_connect = on_connect
     client.on_message = on_message
     return client
- 
+
 i = 0
 # 加入自动启动菜单
 def add_to_startup():
@@ -243,5 +259,6 @@ def run():
         client.loop_forever()
 
 if __name__ == '__main__':
-    add_to_startup()
+    if "Windows" in system():
+        add_to_startup()
     run()
