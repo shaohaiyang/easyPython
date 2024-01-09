@@ -97,7 +97,7 @@
 </head>
 
 <body>
-<h1>单单弹通知系统上线了! ❤️ </h1>
+<h1>点点通知系统上线了! ❤️ </h1>
 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
   <li class="nav-item" role="presentation">
   <button class="nav-link btn btn-info" id="pills-new-tab" data-bs-toggle="pill" data-bs-target="#pills-new" type="button" role="tab" aria-controls="pills-new">发布新通知</button>
@@ -119,7 +119,7 @@
         <h5> 通知发布成功! </h5>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Close </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="document.getElementById('myForm').reset();"> 关闭 </button>
       </div>
     </div>
   </div>
@@ -127,7 +127,7 @@
 
 <div class="tab-content" id="pills-tabContent">
   <div class="tab-pane fade show " id="pills-new" role="tabpanel" aria-labelledby="pills-new-tab">
-      <form id="myForm" class="mb-3" onsubmit="return validateForm()" hx-post="/submit" hx-swap="beforebegin" hx-target="#new-msg">
+      <form id="myForm" class="mb-3" onsubmit="return validateForm()" hx-post="/submit" hx-swap="afterbegin" hx-target="#new-msg">
       <br>
       <div class="form-check form-switch">
       <input class="form-check-input" type="checkbox" id="mySwitch" name="msg_speak">
@@ -144,8 +144,8 @@
 
       <input type="hidden" id="send_time" value="" name="send_time"/>
       <input type="hidden" id="msg_type" value="" name="msg_type"/>
-      <input type="text" maxlength="30" id="title" name="title" value="学校通知" class="form-control form-control-lg mb-3" data-toggle="tooltip" title="颜色: 消息的重要性，限30字" data-bs-placement="bottom"/>
-      <textarea maxlength="350" class="form-control form-control-lg mb-3" name="message" rows="5" placeholder="注意：默认发布为 '一般消息'，但没有内容发不了哦！字数限制300" ></textarea>
+      <input type="text" required maxlength="30" id="title" name="title" value="学校通知" class="form-control form-control-lg mb-3" data-toggle="tooltip" title="颜色: 消息的重要性，限30字" data-bs-placement="bottom"/>
+      <textarea required minlength="8" maxlength="350" class="form-control form-control-lg mb-3" name="message" rows="5" placeholder="注意：默认发布为 '一般消息'，但没有内容发不了哦！字数限制300"></textarea>
       <div id="myDatePicker"></div>
       <button type="submit" class="btn btn-danger" id="submit">&nbsp;发&nbsp;布&nbsp;! 🚀</button>
       </form>
@@ -174,12 +174,12 @@
         {{post.title}}
         </td>
         <td>
-	<span id="msg" class="d-inline-block text-truncate" style="max-width:650px;" data-toggle="tooltip" title={{post.message}}> {{post.message}} </span>
+        <span id="msg" class="d-inline-block text-truncate" style="max-width:650px;" data-toggle="tooltip" title={{post.message}}> {{post.message}} </span>
 	</td>
 	<td class="text-left">{{post.views}}</td>
 	<td>
 {% if post.updatedAt %}
-	<span class="text-primary" data-toggle="tooltip" title="定时发送: {{post.updatedAt}}"> {{post.createdAt}} </span>
+        <span class="text-primary" data-toggle="tooltip" title="定时发送: {{post.updatedAt}}"> {{post.createdAt}} </span>
 {% else %}
 	{{post.createdAt}}
 {% endif %}
@@ -198,7 +198,7 @@
       alert("没有啥事就别发了。");
       return false;
     }
-    else if ( x.length < 6) {
+    else if ( x.length < 8) {
       alert("就算是测试也要认真一点吧。");
       return false;
     }
