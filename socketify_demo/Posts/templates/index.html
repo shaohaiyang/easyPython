@@ -1,0 +1,204 @@
+{# templates/index.html #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title> 测试 测试  测试  测试  </title>
+  <link  href="https://ddt.ddz.me/static/bootstrap.min.css" rel="stylesheet">
+  <link  href="https://ddt.ddz.me/static/jquery.datetimepicker.css" rel="stylesheet"/>
+  <script src="https://ddt.ddz.me/static/bootstrap.bundle.min.js"></script>
+  <script src="https://ddt.ddz.me/static/jquery.min.js"></script>
+  <script src="https://ddt.ddz.me/static/jquery.datetimepicker.js"></script>
+  <script src="https://ddt.ddz.me/static/alpine.min.js"></script>
+  <script src="https://ddt.ddz.me/static/htmx.min.js"></script>
+
+  <script>
+  $(document).ready(function() {
+    // Get click event, assign button to var, and get values from that var
+    $('#aBtnGroup button').on('click', function() {
+      var thisBtn = $(this);
+      // click button and change color
+      thisBtn.addClass('active').siblings().removeClass('active');
+      var btnValue = thisBtn.val();
+      //var btnText = thisBtn.text();
+      //$('#selectedVal').text(btnValue);
+      if (btnValue == 0){
+	$("#title").css({"background-color":"#188855", "color":"white"});
+      }
+      else if (btnValue == 1){
+	$("#title").css({"background-color":"#ffcc33", "color":"black"});
+      }
+      else {
+	$("#title").css({"background-color":"#ff3333", "color":"white"});
+      }
+      document.getElementById("msg_type").value = btnValue;
+    });
+    // You can use this to set default value
+    $('#aBtnGroup button[value="0"]').click();
+    $("[data-toggle='tooltip']").tooltip(); 
+    $('#myDatePicker').datetimepicker({
+      date: new Date(),
+      language: 'zh',
+      firstDayOfWeek: 1,
+      viewMode: 'YMDHM',
+      onOk: function() {
+	var timeValue = this.getText();
+	var date1 = Math.floor(Date.now() / 1000)
+	var date2 = Math.floor(new Date(timeValue).getTime() / 1000);
+
+	//alert(timeValue +  "定时：" + date2 + " 当前：" + date1);
+	if ( date2 < date1 + 88 ){
+	  alert("你的定时时间太短了! 至少延时三分钟以上吧？ ");
+	  return false;
+	}
+	else {
+	  $('#submit').text("定时发送 ⏰ 时间:  " + timeValue);
+	  document.getElementById("send_time").value = timeValue;
+	}
+      },
+      onClear: function() {
+	document.getElementById("send_time").value = "";
+	$('#submit').text("发 送! 🚀");
+      },
+    });
+  });
+  </script>
+
+  <style type="text/css">
+      body{
+          padding: 20px;
+      }
+
+      table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+      }
+
+      tr.htmx-swapping td {
+          opacity: 0;
+          transition: opacity 0.3s ease-out;
+      }
+
+      td, th {
+          border: 1px solid #383737;
+          text-align: left;
+          padding: 8px;
+      }
+
+      tr:nth-child(even) {
+          background-color: #eeeeff;
+      }
+
+      div {
+          margin:10px 0;
+      }
+  </style>
+</head>
+
+<body>
+<h1> 测试  测试  测试 上线了! ❤️ </h1>
+<!--
+<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+  <li class="nav-item" role="presentation">
+  <button class="nav-link btn btn-info" id="pills-new-tab" data-bs-toggle="pill" data-bs-target="#pills-new" type="button" role="tab" aria-controls="pills-new">发布新通知</button>
+  </li>
+  <li class="nav-item" role="presentation">
+  <button class="nav-link btn btn-danger active" id="pills-view-tab" data-bs-toggle="pill" data-bs-target="#pills-view" type="button" role="tab" aria-controls="pills-view">&nbsp;查看通知&nbsp;</button>
+  </li>
+</ul>
+-->
+
+<!-- <button class="btn btn-success" id="popup" onclick="showModal()">popup</button> -->
+<div id="gfg" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"> 发布成功 </h4>
+      </div>
+      <div class="modal-body">
+        <h5> 通知发布成功! </h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="document.getElementById('myForm').reset();"> Close </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--
+<div class="tab-content" id="pills-tabContent">
+-->
+  <div class="tab-pane fade show " id="pills-new" role="tabpanel" aria-labelledby="pills-new-tab">
+      <form id="myForm" class="mb-3" onsubmit="return validateForm()" hx-post="/submit" hx-swap="afterbegin" hx-target="#new-msg">
+      <br>
+      <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="mySwitch" name="msg_speak">
+      <label class="badge bg-primary" style="font-size:17px;" for="mySwitch"> 🔔 开启语音播报</label>
+      </div>
+      <br>
+      <div id="aBtnGroup" class="btn-group">
+      <button type="button" class="btn btn-success btn-lg" data-bs-placement="top" data-toggle="tooltip" title="系统自带&消息弹框" value="0">💬&nbsp;一般消息&nbsp;</button>
+      <button type="button" class="btn btn-warning btn-lg" data-bs-placement="top" data-toggle="tooltip" title="屏幕居中&前置显示" value="1">📌&nbsp;重要消息&nbsp;</button>
+      <button type="button" class="btn btn-danger  btn-lg" data-bs-placement="top" data-toggle="tooltip" title="全屏消息&退格键关闭" value="2">👏&nbsp;紧急消息&nbsp;</button>
+      </div>
+      <br>
+      <br>
+
+      <input type="hidden" id="author" value="shy" name="author"/>
+      <input type="text" required maxlength="30" id="title" name="message" value="学校通知" class="form-control form-control-lg mb-3" data-toggle="tooltip" title="颜色: 消息的重要性，限30字" data-bs-placement="bottom"/>
+      <textarea required minlength="3" maxlength="350" class="form-control form-control-lg mb-3" name="title" rows="5" placeholder="注意：默认发布为 '一般消息'，但没有内容发不了哦！字数限制300"></textarea>
+      <div id="myDatePicker"></div>
+      <button type="submit" class="btn btn-danger" id="submit">&nbsp;发&nbsp;布&nbsp;! 🚀</button>
+      </form>
+  </div>
+
+  <div class="tab-pane fade show active" id="pills-view" role="tabpanel" aria-labelledby="pills-view-tab">
+    <table class="table table-bordered table-hover">
+    <thead>
+      <tr class="text-warning bg-dark">
+        <th scope="col">通知标题</th>
+        <th scope="col">消息内容</th>
+        <th scope="col">阅读人数</th>
+        <th scope="col">发布时间</th>
+        <th scope="col">操作</th>
+      </tr>
+    </thead>
+    <tbody id="new-msg" hx-target="closest tr" hx-swap="outerHTML swap:0.3s">
+      {%for post in data%}
+      <tr>
+{% if post.type == "1" %}
+        <td class="table-warning border-warning">
+{% elif post.type == "2" %}
+        <td class="table-danger border-danger">
+{% else %}
+        <td class="table-success border-primary">
+{% endif %}
+        {{post.title}}
+        </td>
+        <td>
+        <span id="msg" class="d-inline-block text-truncate" style="max-width:650px;" data-toggle="tooltip" title={{post.message}}> {{post.author.name}} </span>
+	</td>
+	<td class="text-left">{{post.views}}</td>
+	<td class="text-left">{{post.updatedAt}}</td>
+	<td>
+                <button class="btn btn-warning" hx-put="/edit/{{post.id}}"> Edit </button>
+                <button class="btn btn-danger" hx-put="/delete/{{post.id}}" hx-confirm='Are you sure?'> Delete </button>
+	</td>
+      </tr> 
+      {%endfor%}
+    </tbody>
+    </table>
+  </div>
+<!--
+</div>
+-->
+<script>
+  function validateForm() {
+    let modal = new bootstrap.Modal(document.getElementById('gfg'));
+      //$('#popup').click();
+      modal.show();
+  }
+</script>
+</body>
+</html>
