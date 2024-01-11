@@ -6,9 +6,9 @@ COPY . .
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 RUN python3 -m prisma generate
-RUN python3 -m prisma migrate dev --name init
 RUN apt-get update && apt-get install -y --no-install-recommends \
 libuv1 \
+zlib1g \
 && \
 apt-get clean && \
 rm -rf /var/lib/apt/lists/*
@@ -18,4 +18,4 @@ EXPOSE 8080
 CMD ["tail", "-f", "/dev/null"]
 
 #docker build -t robyn_demo --rm .
-#docker run -tid --name=robyn_demo -v /src:/app -p 4000:8080 robyn_demo sh -c "prisma db push --schema /app/schema.prisma && python3 /app/app.py --log-level=ERROR"
+#docker run -tid --name=robyn_demo -v /src:/app -p 4000:8080 robyn_demo sh -c "prisma db push --schema /app/schema.prisma && python3 /app/app.py"

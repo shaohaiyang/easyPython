@@ -53,9 +53,7 @@ async def addpost(res, req):
   if DEBUG: print("post <", data, " -> ", title, author)
 
   if title is None or author is None:
-    return jsonify({
-      "error": "you need to provide title and author!"
-    })
+    res.end("Error: Need to provide title and author!")
  
   user = await db.user.find_first(where={'name': author})
   if user is None:
@@ -93,7 +91,7 @@ async def delete(res, req):
  
   post = await db.post.delete(where={'id': postId})
   if post is None:
-    return jsonify({"error": "Post doesn't exist."})
+    res.end("Error: Post doesn't exist!")
   res.end("")
 
 
@@ -127,7 +125,7 @@ async def getpost(res, req):
  
     post = await db.post.find_unique(where={'id': postId}, include={'author': True})
     if post is None:
-      return jsonify({"error": "Post doesn't exist"})
+      res.end("Error: Post doesn't exist!")
     else:
       if DEBUG: print(post)
  
