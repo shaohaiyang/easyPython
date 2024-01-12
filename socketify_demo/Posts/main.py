@@ -2,14 +2,17 @@ from socketify import App, AppOptions, AppListenOptions
 from prisma import Prisma
 from urllib.parse import parse_qs
 from jinja2_templates import Jinja2Template
+import ujson
 
 DEBUG=True
+db = Prisma(auto_register=True)
 
 app = App(lifespan=False)
 app.template(Jinja2Template("./templates", encoding="utf-8", followlinks=False))
-router = app.router()
+app.json_serializer(ujson)
 
-db = Prisma(auto_register=True)
+api = app.router(prefix="/api")
+router = app.router()
 
 @app.on_start
 async def on_start():
@@ -22,6 +25,14 @@ async def on_shutdown():
   if db.is_connected():
     await db.disconnect()
 
+
+def corksend(res, result="", status=200):
+    res.cork(lambda res: res.write_status(f"{status}").end(f"{result}"))
+
+# test api sub-router return json
+@api.get("/")
+async def api(res, req):
+  corksend(res, '{"hello":"world"}')
 
 @router.get("/")
 async def home(res, req):
@@ -53,7 +64,8 @@ async def addpost(res, req):
   if DEBUG: print("post <", data, " -> ", title, author)
 
   if title is None or author is None:
-    res.end("Error: Need to provide title and author!")
+    corksend(res, "Error: Need to provide title and author!")
+
  
   user = await db.user.find_first(where={'name': author})
   if user is None:
@@ -63,15 +75,15 @@ async def addpost(res, req):
       }
     )
  
-  post = await db.post.create(
+  try:
+    post = await db.post.create(
       data={  
         'title': title,
         'authorId': user.id,
       }
-  )
-  if DEBUG: print("post <", data)
- 
-  response = f"""<tr>
+    )
+    if DEBUG: print("post <", data)
+    response = f"""<tr>
                 <td>{post.title}</td>
                 <td>{author}</td>
                 <td>{post.views}</td>
@@ -81,18 +93,20 @@ async def addpost(res, req):
                 <button class='btn btn-danger' hx-put='/delete/{post.id}' hx-confirm='Are you sure?'> Delete </button>
                 </td>
                 </tr>"""
-  res.end(response)
+    corksend(res, response)
+  except Exception as e:
+    raise(e)
 
 
 @router.put("/delete/:id")
 async def delete(res, req):
-  postId = int( req.get_parameter(0) )
+  postId = int( req.get_parameter(0) ) #req.get_parameters() -> list
   if DEBUG: print(postId," delete")
  
   post = await db.post.delete(where={'id': postId})
   if post is None:
-    res.end("Error: Post doesn't exist!")
-  res.end("")
+    corksend(res, "Error: Post doesn't exist!")
+  corksend(res)
 
 
 @router.put("/edit/:id")
@@ -114,7 +128,7 @@ async def edit(res, req):
                         <button class='btn btn-primary' hx-put='/update/{post.id}' hx-include='closest tr'> Save </button>
                 </td>
     </tr>"""
-  res.end(response)
+  corksend(res, response, 202)
 
 
 @router.get("/view/:id")
@@ -125,7 +139,7 @@ async def getpost(res, req):
  
     post = await db.post.find_unique(where={'id': postId}, include={'author': True})
     if post is None:
-      res.end("Error: Post doesn't exist!")
+      corksend(res, "Error: Post doesn't exist!")
     else:
       if DEBUG: print(post)
  
@@ -139,7 +153,7 @@ async def getpost(res, req):
                 <button class='btn btn-danger' hx-put='/delete/{post.id}' hx-confirm='Are you sure?'> Delete </button>
                 </td>
                 </tr>"""
-    res.end(response)
+    corksend(res, response)
   except Exception as e:
     raise(e)
  
@@ -178,13 +192,13 @@ async def update(res, req):
                 <button class='btn btn-danger' hx-put='/delete/{post.id}' hx-confirm='Are you sure?'> Delete </button>
                 </td>
                 </tr>"""
-    res.end(response)
+    corksend(res, response, 201)
   except Exception as e:
     raise(e)
  
 ###########################################
 if __name__ == "__main__":
   app.listen(
-    AppListenOptions(port=8080, host="0.0.0.0"),
+    AppListenOptions(host="0.0.0.0", port=8080),
     lambda config: print( "Listening on port http://%s:%d now\n" % (config.host, config.port))
   ).run()

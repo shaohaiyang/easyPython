@@ -17,5 +17,5 @@ EXPOSE 8080
 
 CMD ["tail", "-f", "/dev/null"]
 
-#docker build -t robyn_demo --rm .
-#docker run -tid --name=robyn_demo -v /src:/app -p 4000:8080 robyn_demo sh -c "prisma db push --schema /app/schema.prisma && python3 /app/app.py"
+#docker build -t socketify_py311 --rm .
+#docker run -tid --name=socketify_demo -v /src:/app -p 4000:8080 socketify_py311 sh -c "prisma db push --schema schema.prisma && python3 app.py --workers 4"
