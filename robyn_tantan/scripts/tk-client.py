@@ -1,4 +1,5 @@
 #import ctypes
+import pyttsx3
 from random import randint, choice
 from paho.mqtt import client as mqtt_client
 from threading import Thread
@@ -10,26 +11,18 @@ from platform import node, system
 from socket import gethostname
 from psutil import process_iter
 from datetime import datetime
- 
-DEBUG = True
-# mqtt server address and listen port
-server = "www.qq.com"
-port = 1883
-# mqtt receive channel topic name
-topic = "school/hzc/#"
-# mqtt identity username/password verification
-username = "hzc"
-password = "hzc87612487"
+from requests import get
+from io import StringIO
+from configparser import ConfigParser
 
-hello = "休息轻松一下吧 :)"
-colors = [ "#C7EDCC", "#FFFFFF", "#FAF9DE", "#FFF2E2", "#FDE6E0", "#DCE2F1", "#E9EBFE", "#EAEAEF", "#E3EDCD", "#CCE8CF" ]
-# icons
-WS_TOPMOST = 0x1000
-ICON_EXCLAIM = 0x30
-ICON_INFO = 0x40
-ICON_STOP = 0x10
- 
- # get windows machine name
+DEBUG = False
+codename = "hzc"
+
+server = "www.qq.com"
+urlfile = f"http://{server}/tantan.config"
+config = ConfigParser(allow_no_value=True) # 导入配置解析库
+
+# get windows machine name
 try:
     n1 = node()
     n2 = gethostname()
@@ -55,6 +48,13 @@ elif "Windows" in system():
 else:
     client_id = f'hzz-{computename}-{randint(0, 1000)}'
 
+# 获取并解析远程的配置文件
+def getConfig(codename, key):
+    try:
+        return config.get(codename, key)
+    except:
+        return config.get("default", key)
+
 # 返回屏幕自适应的字体大小
 def count_size(len, width, height):
     size = 36
@@ -75,7 +75,10 @@ def hex_to_rgb(value):
     return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
  
 # 调用系统语音接口播放消息
-def say_message(message):
+def say_message(message, welcome, nickname):
+    hello = "您好，" + choice(nickname) + "," + choice(welcome) + "一下听个通知吧"
+    if DEBUG: print(hello)
+
     if "Darwin" in system():
         try:
             utterance = AVFoundation.AVSpeechUtterance.speechUtteranceWithString_(message)
@@ -87,7 +90,7 @@ def say_message(message):
             speaker.speakUtterance_(utterance)
         except Exception as e:
             pass
-    else:
+    elif "Windows" in system():
         try:
             import pyttsx3
             engine = pyttsx3.init()
@@ -95,14 +98,20 @@ def say_message(message):
             # 播放中英文混合文字
             engine.setProperty('voice', voices[0].id)
             engine.setProperty('rate', 220)
+            engine.say(hello)
+            engine.runAndWait()
+            sleep(1)
             engine.say(message)
             engine.runAndWait()
-            del engine
         except Exception as e:
             pass
+        else:
+            del engine
+    else:
+        pass
  
 # 使用tkinter显示消息
-def tk_message(title,message,checkin=0, type=2):
+def tk_message(title,message,checkin=0, type=2, colors=["#FFFFFF"]):
     import tkinter as tk
     from tkinter.font import Font
     from tkinter import messagebox
@@ -123,7 +132,6 @@ def tk_message(title,message,checkin=0, type=2):
     screen_w = root.winfo_screenwidth()
     screen_h = root.winfo_screenheight()
     word_count = len(message)
-    font_size = 20
     # 区分类型，2为全屏显示，1为屏幕一半居中显示
     if type == 2:
         screen_size = f"{screen_w}x{screen_h}+0+0"
@@ -140,22 +148,22 @@ def tk_message(title,message,checkin=0, type=2):
         textto = tk.Toplevel(root)
         textto.withdraw()
         res = messagebox.showinfo(title, message, parent=textto)
+        textto.attributes('-topmost', True)
         root.destroy()
-    if DEBUG: print(screen_w, screen_h, word_count, font_size, checkin )
 
     if type != 0:
+        font_size = 200 if font_size is None else int(font_size)
         font_type = Font(family="楷体", size=font_size)
         root.attributes('-topmost', True) 
         # bind shortcut key
         root.bind('<Escape>', toggle_fs)
         root.bind('<BackSpace>', quit)
- 
         #with open("message.html","w+") as f:
         #    f.write(message)
         #html_label = HTMLText(root, html=RenderHTML('message.html'))
         #html_label.pack(fill="both", expand=True)
         #html_label.fit_height()
- 
+
         text = tk.Text(root, undo=True, autoseparators=False, wrap=tk.WORD)
         text.insert(tk.INSERT, message)
         text.configure(font=font_type, background=choice(colors))
@@ -164,6 +172,7 @@ def tk_message(title,message,checkin=0, type=2):
         # 窗口聚焦点
         root.focus_force()
     root.mainloop()
+    if DEBUG: print(screen_w, screen_h, word_count, font_size, checkin )
 
 # 主程序，与mqtt通讯 
 def connect_mqtt(topic):
@@ -178,6 +187,9 @@ def connect_mqtt(topic):
                 client.reconnect()
 
     def on_message(client, userdata, msg):
+        config.readfp(StringIO(get(urlfile).text))
+        colors = eval(getConfig(codename,"colors"))
+        hello = "主人，休息一下吧 :)"
         recv_msg = msg.payload.decode().split('^')
         emegy = int(recv_msg[0])
         speak = int(recv_msg[1])
@@ -191,7 +203,9 @@ def connect_mqtt(topic):
         if DEBUG: print(f"模式：{emegy} | 语音：{speak} | 标题ID:{msg_id}：{title} | 消息: {body_Str}, 签到: {checkin}")
 
         if speak == 1:
-            t = Thread(target=say_message, args=(body_Str,))
+            welcome = eval(getConfig(codename,"welcome"))
+            nickname = eval(getConfig(codename,"nickname"))
+            t = Thread(target=say_message, args=(body_Str, welcome, nickname))
             t.start()
 
         currentDatetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -210,10 +224,8 @@ def connect_mqtt(topic):
         with open(path.join(save_path, save_file), encoding="utf-8", mode="a+") as fp:
             fp.write(f"----------- {currentDatetime} -----------\n标题： {title}\n-----------------------------------------------\n{body_Str}\n\n")
 
-        title = f"{hello:<15}【{title}】{currentDatetime:>30}"
-        tk_message(title, body_Str, checkin, emegy)
-        #t2 = Thread(target=tk_message, args=(title, body_Str, checkin, emegy))
-        #t2.start()
+        title = f"{hello:<16}【{title}】{currentDatetime:>30}"
+        tk_message(title, body_Str, checkin, emegy, colors)
  
     # Set Connecting Client ID 设置clean_session为False表示要建立一个持久性会话，这个很重要
     client = mqtt_client.Client(client_id,clean_session=False)
@@ -249,6 +261,21 @@ def add_to_startup():
         if i >= 3: exit(-1)
 
 def run():
+    try:
+        config.readfp(StringIO(get(urlfile).text))
+        server = str(getConfig(codename,"server").replace('"',''))
+        port = int(getConfig(codename,"port").replace('"',''))
+        topic = str(getConfig(codename,"topic").replace('"',''))
+        username = str(getConfig(codename,"username").replace('"',''))
+        password = str(getConfig(codename,"password").replace('"',''))
+    except Exception as e:
+        server = "www.qq.com"
+        port = 8888
+        topic = "school/hzc"
+        username = "hzc"
+        password = "hzx2487"
+    if DEBUG: print(topic, username, password)
+
     try:
         client = connect_mqtt(topic)
         client.username_pw_set(username, password)
