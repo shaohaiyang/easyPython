@@ -81,12 +81,10 @@ def say_message(message, welcome, nickname):
 
     if "Darwin" in system():
         try:
+            hello_speech = AVFoundation.AVSpeechUtterance.speechUtteranceWithString_(hello)
+            speaker.speakUtterance_(hello_speech)
+            sleep(1)
             utterance = AVFoundation.AVSpeechUtterance.speechUtteranceWithString_(message)
-            # Configure the utterance.
-            utterance.setRate_(0.2)
-            utterance.setPitchMultiplier_( 0.8)
-            voice = AVFoundation.AVSpeechSynthesisVoice.voiceWithLanguage_("zh-GB")
-            utterance.setVoice_(voice)
             speaker.speakUtterance_(utterance)
         except Exception as e:
             pass
