@@ -76,7 +76,7 @@ def hex_to_rgb(value):
  
 # 调用系统语音接口播放消息
 def say_message(message, welcome, nickname):
-    hello = "您好，" + choice(nickname) + "," + choice(welcome) + "一下听个通知吧"
+    hello = choice(nickname) + "," + choice(welcome) + "一下,听个通知吧"
     if DEBUG: print(hello)
 
     if "Darwin" in system():
@@ -150,7 +150,7 @@ def tk_message(title,message,checkin=0, type=2, colors=["#FFFFFF"]):
         root.destroy()
 
     if type != 0:
-        font_size = 200 if font_size is None else int(font_size)
+        font_size = 220 if font_size is None else int(font_size)
         font_type = Font(family="楷体", size=font_size)
         root.attributes('-topmost', True) 
         # bind shortcut key
@@ -185,8 +185,17 @@ def connect_mqtt(topic):
                 client.reconnect()
 
     def on_message(client, userdata, msg):
-        config.readfp(StringIO(get(urlfile).text))
-        colors = eval(getConfig(codename,"colors"))
+        try:
+            config.readfp(StringIO(get(urlfile).text))
+            colors = eval(getConfig(codename,"colors"))
+            welcome = eval(getConfig(codename,"welcome"))
+            nickname = eval(getConfig(codename,"nickname"))
+        except Exception as e:
+            colors = [ "#C7EDCC", "#FFFFFF", "#FAF9DE", "#FFF2E2", "#FDE6E0", "#DCE2F1", "#E9EBFE", "#EAEAEF", "#E3EDCD", "#CCE8CF" ]
+            welcome = ["休息", "轻松", "运动", "开心"]
+            nickname = ["辛勤的园丁", "光荣的人民教师", "尊敬的老师"]
+        if DEBUG: print(welcome, nickname)
+
         hello = "主人，休息一下吧 :)"
         recv_msg = msg.payload.decode().split('^')
         emegy = int(recv_msg[0])
@@ -201,8 +210,6 @@ def connect_mqtt(topic):
         if DEBUG: print(f"模式：{emegy} | 语音：{speak} | 标题ID:{msg_id}：{title} | 消息: {body_Str}, 签到: {checkin}")
 
         if speak == 1:
-            welcome = eval(getConfig(codename,"welcome"))
-            nickname = eval(getConfig(codename,"nickname"))
             t = Thread(target=say_message, args=(body_Str, welcome, nickname))
             t.start()
 
