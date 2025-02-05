@@ -53,6 +53,7 @@ html:
 	grep 'src="./images' $(OUTPUTDIR)/posts/ -r -l | xargs -I{} sed -i '' '/src=".\/images\//s@./images/@/images/@g' {}
 
 clean:
+	[ ! -d "$(BASEDIR)/__pycache__" ] || rm -rf "$(BASEDIR)/__pycache__"
 	[ ! -d "$(OUTPUTDIR)" ] || rm -rf "$(OUTPUTDIR)"
 
 regenerate:
