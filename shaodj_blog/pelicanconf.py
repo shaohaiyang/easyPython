@@ -39,4 +39,11 @@ LINKS = (
 DEFAULT_PAGINATION = 10
 
 # Uncomment following line if you want document-relative URLs when developing
-# RELATIVE_URLS = True
+RELATIVE_URLS = False
+DIRECT_TEMPLATES = ['index','authors','categories','tagcloud','archives']
+#MENUITEMS=(('标签','tagcloud.html'),)
+
+TAG_CLOUD_STEPS = 4
+TAG_CLOUD_MAX_ITEMS = 100
+TAG_CLOUD_SORTING = "random"
+TAG_CLOUD_BADGE = True
