@@ -2,7 +2,7 @@ Title: 使用 openpyxl 创建 Excel 文件
 Slug: python-openpyxl
 Date: 2025-01-31 18:00
 Category: 编程
-Tags: blog, python
+Tags: blog, python, xls, xlsx, openpyxl, excel
 
 代码示例展示了如何使用 `openpyxl` 库从文本文件中读取数据并将其写入Excel文件。
 

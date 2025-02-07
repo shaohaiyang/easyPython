@@ -2,7 +2,7 @@ Title: 使用 FreeSimpleGUI 定制图形界面
 Slug: python-freesimplegui
 Date: 2025-02-06 17:18
 Category: 编程
-Tags: blog, python
+Tags: blog, python, gui, tkinter
 
 ## 什么是FreeSimpleGUI？
 **FreeSimpleGUI**是一个开源的图形用户界面库，旨在提供一个简单、易用的GUI解决方案。 它简化了窗口和元素的创建过程，通过一个简洁的布局定义系统，支持多种流行的 GUI 框架，包括 tkinter、Qt、WxPython 和 Remi。它通过封装这些框架的常用功能，提供了更简洁的 API，让你专注于应用逻辑而非繁杂的UI细节。
@@ -38,8 +38,9 @@ layout = [
      sg.Slider(range=(30, 100), resolution=10, default_value=60,
         size=(12, 15), border_width=1, text_color='navy',
         orientation='horizontal', key='_SCALE_')],
-    [sg.Text('水印文字:'), sg.InputText(size=(20, 1), key='_WORDS_')],
-    [sg.Button('OK'), sg.Button('Exit')],
+    [sg.Text('水印文字:'), 
+     sg.InputText(size=(20, 1), key='_WORDS_')],
+    [sg.Button('OK'),  sg.Button('Exit')],
 ]
  
 types = ["png", "jpg", "jpeg"]

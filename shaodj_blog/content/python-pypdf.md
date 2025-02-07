@@ -2,7 +2,7 @@ Title: 使用 PyPDF 和 Pandoc 实现word/pdf转换
 Slug: python-pypdf-pandoc
 Date: 2025-02-01 15:04
 Category: 编程
-Tags: blog, python
+Tags: blog, python, word, pdf, pypdf, pandoc
 
 代码示例展示了如何使用 `PyPDF` 和 `Pandoc` 实现word/pdf转换
 

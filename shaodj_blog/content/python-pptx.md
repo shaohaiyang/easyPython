@@ -2,7 +2,7 @@ Title: 使用 python-pptx 库制作PowerPoint
 Slug: python-pptx-powerpoint
 Date: 2025-02-05 17:38
 Category: 编程
-Tags: blog, python
+Tags: blog, python, ppt, pptx
 
 ## python-pptx 库简介
 [python-pptx](https://python-pptx.readthedocs.io/) 是一个用于创建和修改 PowerPoint (.pptx) 文件的 Python 库。它提供了丰富的功能，使用户能够方便地生成演示文稿，并且可以进行各种格式的自定义。

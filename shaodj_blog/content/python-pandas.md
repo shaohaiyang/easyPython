@@ -2,7 +2,7 @@ Title: 使用 Pandas 实现基本的数据分析
 Slug: python-pandas
 Date: 2025-02-02 10:16
 Category: 编程
-Tags: blog, python
+Tags: blog, python, pandas, excel, xls, xlsx
 
 **Pandas** 一个强大的分析结构化数据的工具集，基础是 [Numpy](https://www.runoob.com/numpy/numpy-tutorial.html)（提供高性能的矩阵运算）。
 

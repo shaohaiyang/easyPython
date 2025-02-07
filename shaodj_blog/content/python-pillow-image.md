@@ -2,7 +2,7 @@ Title: 使用 PIL(pillow) 实现图片绘制 & 裁剪 & 水印
 Slug: python-pillow-pil
 Date: 2025-02-01 20:32
 Category: 编程
-Tags: blog, python
+Tags: blog, python, pillow, pil
 
 使用`PIL`代码实现了从图像中裁剪出一个`logo`，并将其作为水印添加到其他图像上。
 

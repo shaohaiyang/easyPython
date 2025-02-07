@@ -2,7 +2,7 @@ Title: 使用 BeautifulSoup & Requests 解析网页
 Slug: python-bs4-requests
 Date: 2025-02-03 15:53
 Category: 编程
-Tags: blog, python
+Tags: blog, python, requests, beautifulsoup, bs, web
 
 Python有两个很好用第三方模块`requests`库和`beautifulsoup`库，简单学习下模块用法：
 

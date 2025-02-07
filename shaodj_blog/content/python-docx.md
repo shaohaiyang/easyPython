@@ -2,7 +2,7 @@ Title: 使用 python-docx 创建 word 文件
 Slug: python-pydocx
 Date: 2025-02-01 10:52
 Category: 编程
-Tags: blog, python
+Tags: blog, python, doc, docx
 
 代码示例展示了如何使用 `python-docx` 库创建和修改 Word 文件。
 

@@ -2,7 +2,7 @@ Title: 使用 Selenium & webdriver 自动化测试
 Slug: python-selenium-web
 Date: 2025-02-04 14:08
 Category: 编程
-Tags: blog, python
+Tags: blog, python, selenium, web
 
 **Selenium** 是 Python 生态中最强大的工具之一，特别适合处理动态网页和复杂用户交互场景。无论是用于自动化测试、数据抓取、还是 Web 爬虫、任务自动化（如表单提交、网页截图、数据抓取等），`Selenium` 都是一个优秀的选择。
 

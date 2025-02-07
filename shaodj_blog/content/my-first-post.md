@@ -2,7 +2,7 @@ Title: My first post
 Slug: misc-first-post
 Date: 2025-01-31 12:00
 Category: 杂记
-Tags: blog, 随笔
+Tags: blog, misc, pelican
 
 ##### 开篇小记
 
