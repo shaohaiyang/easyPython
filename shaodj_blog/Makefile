@@ -50,7 +50,7 @@ help:
 
 html:
 	"$(PELICAN)" "$(INPUTDIR)" -o "$(OUTPUTDIR)" -s "$(CONFFILE)" $(PELICANOPTS)
-	grep 'src="./images' $(OUTPUTDIR)/posts/ -r -l | xargs -I{} sed -i '' '/src=".\/images\//s@./images/@/images/@g' {}
+	grep 'src="./images' $(OUTPUTDIR)/ -r -l | xargs -I{} sed -i '' '/src=".\/images\//s@./images/@/images/@g' {}
 
 clean:
 	[ ! -d "$(BASEDIR)/__pycache__" ] || rm -rf "$(BASEDIR)/__pycache__"
@@ -73,6 +73,7 @@ devserver-global:
 
 publish:
 	"$(PELICAN)" "$(INPUTDIR)" -o "$(OUTPUTDIR)" -s "$(PUBLISHCONF)" $(PELICANOPTS)
+	grep 'src="./images' $(OUTPUTDIR)/ -r -l | xargs -I{} sed -i '' '/src=".\/images\//s@./images/@/images/@g' {}
 
 github: publish
 	ghp-import -m "$(GITHUB_PAGES_COMMIT_MESSAGE)" -b $(GITHUB_PAGES_BRANCH) "$(OUTPUTDIR)" --no-jekyll
