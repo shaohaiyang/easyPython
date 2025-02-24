@@ -70,11 +70,11 @@ ansible-playbook -i lists-hosts ops.yaml -e "host=OPK-JUMPS"
       package:
         name: nginx
         state: present
-    -name: 复制Nginx配置文件
+    - name: 复制Nginx配置文件
       template:
         src: templates/nginx.conf.j2
         dest: /etc/nginx/nginx.conf
-    -name: 重启Nginx
+    - name: 重启Nginx
       service:
         name: nginx
         state: restarted
@@ -102,7 +102,7 @@ ansible-playbook -i lists-hosts ops.yaml -e "host=OPK-JUMPS"
       loop:
         - 80
         - 443
-    -name: 启用UFW
+    - name: 启用UFW
       ufw:
         state: enabled
 ```
@@ -181,6 +181,7 @@ ansible-playbook -i lists-hosts ops.yaml -e "host=OPK-JUMPS"
       unarchive:
         src: /tmp/node_exporter.tar.gz
         dest: /usr/local/bin/
+        extra_opts: ["--strip-components=1"]  # 去掉一层目录结构
         remote_src: yes
     - name: 启动NodeExporter
       shell: |
