@@ -67,20 +67,61 @@ ansible-playbook -i lists-hosts ops.yaml -e "host=OPK-JUMPS"
   become: yes
   tasks:
     - name: 安装Nginx
-      package:
+      apt:
         name: nginx
         state: present
-    - name: 复制Nginx配置文件
-      template:
-        src: templates/nginx.conf.j2
-        dest: /etc/nginx/nginx.conf
+      tags: install
+
     - name: 重启Nginx
       service:
         name: nginx
         state: restarted
+      tags: restart
+
+    - name: 配置proxy_cache功能
+      template:
+        src:  /root/proxy_cache.conf.j2
+        dest: /etc/nginx/conf.d/proxy_cache.conf
+      tags: config
+
+    - name: 创建cache目录
+      file:
+        path: /var/cache/nginx_cache
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'  # 设置目录权限，可选
+      tags: config
 ```
-- template 模块: 将 Jinja2 模板复制到服务器以实现动态配置。
 - service 模块: 确保 Nginx 在配置更改后重启。
+- template 模块: 将 Jinja2 模板复制到服务器以实现动态配置。
+```bash
+proxy_cache_path /var/cache/nginx_cache levels=1:2 keys_zone=my_cache:100m inactive=60m use_temp_path=off max_size=1g;
+
+upstream www {
+        server localhost:80;
+}
+
+server {
+        listen {{ server_port | default(8080) }};
+
+        location ~ \.(txt|psd|gif|jpg|jpeg|png|ico|js|css)$ {
+                proxy_cache my_cache;
+                proxy_cache_key $uri;
+                proxy_cache_valid 200 302 24h;
+                proxy_cache_valid 301 30d;
+                proxy_cache_valid any 5m;
+                add_header X-CACHE "Give me five";
+                if ( !-e $request_filename) {
+                        proxy_pass http://www;
+                }
+        }
+
+        location / {
+                proxy_pass http://www;
+        }
+}
+```
 
 # 4. 防火墙配置的 Playbook
 此 Playbook 使用 UFW 配置基本防火墙。
@@ -113,12 +154,12 @@ ansible-playbook -i lists-hosts ops.yaml -e "host=OPK-JUMPS"
 使用此可重用 Playbook 自动化应用部署。
 ```python
 ---
-- name: 部署PythonWeb应用
+- name: 部署Python Web应用
   hosts: "{{ host }}"
   become: yes
   tasks:
     - name: 安装Python依赖
-      package:
+      apt:
         name:
           - python3
           - python3-pip
@@ -128,9 +169,14 @@ ansible-playbook -i lists-hosts ops.yaml -e "host=OPK-JUMPS"
         name:
           - flask
           - gunicorn
+    - name: 创建目录
+      file:
+        path: /var/www/myapp
+        state: directory
+        mode: '0755'  # 设置目录权限，可选
     - name: 复制应用代码
       copy:
-        src: /local/path/to/app
+        src: /root/app.py
         dest: /var/www/myapp
     - name: 启动应用
       shell: |
@@ -140,6 +186,15 @@ ansible-playbook -i lists-hosts ops.yaml -e "host=OPK-JUMPS"
 ```
 - pip 模块: 安装 Flask 和 Gunicorn 等 Python 包。
 - shell 模块: 使用 Gunicorn 作为后台进程启动应用。
+- app.py 是个最简单的flask应用
+```python
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello_flask():
+  return 'Hello, Flask!'
+```
 
 # 6. 数据库设置的 Playbook
 快速设置并保护 MySQL 数据库。
