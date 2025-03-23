@@ -4,7 +4,9 @@ Date: 2025-03-14 11:08
 Category: 人工智能
 Tags: blog,aigc,llm
 
-# MCP协议详解
+# 三分钟看懂MCP现状和未来
+
+## MCP协议详解
 MCP（Model Context Protocol）是一种新的开放协议，目的是为LLM提供标准化的上下文信息传递方式，从而实现AI智能体与外部数据及工具的结合。
 
 通俗的话讲，MCP就像是专为AI应用设计的通用接口，类似我们日常使用的USB-C。
@@ -15,7 +17,7 @@ MCP（Model Context Protocol）是一种新的开放协议，目的是为LLM提�
 
 ![mcp archintcture](./images/mcp_architecture.png)
 
-# MCP协议的优点
+## MCP协议的优点
 MCP是一种标准化协议，用于连接AI智能体与各种外部工具和数据源。
 
 其主要优势如下：
@@ -55,7 +57,7 @@ MCP的灵活性也非常突出，它既可以在云端运行，也可以在本�
 
 - 触发操作：LLM指示服务器执行具体操作。例如，重新安排会议、发送电子邮件。
 
-# MCP系统架构
+## MCP系统架构
 MCP采用简单的客户端-服务器架构模式：
 
 - MCP主机：需要访问外部数据或工具的应用程序（如Claude Desktop或AI驱动的集成开发环境）
@@ -70,3 +72,9 @@ MCP采用简单的客户端-服务器架构模式：
 
 将MCP比作一座桥梁可以更清晰地理解：MCP本身不处理复杂逻辑；它只是协调AI模型和各种工具之间的数据和指令流通。
 ![mcp server and client](./images/mcp_server_arch.png)
+
+
+## MCP的未来
+不管是使用 XML 还是 JSON，不管是本地二进制中寻找 symbol 还是通过 HTTP 进行交换，我们一路走来，早已习惯了使用结构化的数据格式和预先定义的 API 完成各种任务。在 API 的调用方和提供方，都需要人工维护及稳定的接口契约来规定参数类型、格式、调用方式。
+
+随着 LLM 和 AI 时代的到来，无论是 function calling 还是 MCP 定义的协议，都迈出了新一步：<font color=red>它们在现有 API 上新增了 AI 友好层 (如自然语言代理端点)，实现了对传统 API 设计的渐进式改进。</font>在调用 API 时，我们使用自然语言描述，并交由 LLM 为我们生成结构化的调用方法和参数，从而简化了 API 使用侧的负担。
